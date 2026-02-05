@@ -6,12 +6,12 @@ import jakarta.persistence.Persistence;
 
 public class EntityManagerHelper {
 
-    private static final EntityManagerFactory emf; 
+    private static final EntityManagerFactory emf;
     private static final ThreadLocal<EntityManager> threadLocal;
 
     static {
         emf = Persistence.createEntityManagerFactory("dev");      
-        threadLocal = new ThreadLocal<EntityManager>();
+        threadLocal = new ThreadLocal<>();
     }
 
     public static EntityManager getEntityManager() {

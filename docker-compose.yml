@@ -1,0 +1,19 @@
+version: '3.8'
+services:
+  app:
+    build: .
+    depends_on:
+      - db
+    environment:
+      - DATABASE_URL=jdbc:mysql://db:3306/mydatabase
+      - DATABASE_USER=sa
+      - DATABASE_PASSWORD=tlc
+  db:
+    image: mysql:8.0
+    environment:
+      - MYSQL_DATABASE=mydatabase
+      - MYSQL_USER=sa
+      - MYSQL_PASSWORD=tlc
+      - MYSQL_ROOT_PASSWORD=root
+    ports:
+      - "3306:3306"

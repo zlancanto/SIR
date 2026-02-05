@@ -21,6 +21,7 @@
 			<property name="hibernate.show_sql" value="true" />
 		</properties>
 	</persistence-unit>
+
 	<persistence-unit name="prod" transaction-type="RESOURCE_LOCAL">
 		<provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
 		<properties>
@@ -54,7 +55,7 @@
 				name="jakarta.persistence.schema-generation.database.action"
 				value="update" />
 			<property name="jakarta.persistence.dialect"
-				value="org.hibernate.dialect.MySQL8Dialect" />
+				value="org.hibernate.dialect.MySQLDialect" />
 			<property name="hibernate.show_sql" value="true" />
 			<property name="hibernate.c3p0.min_size" value="5" />
 			<property name="hibernate.c3p0.max_size" value="20" />
