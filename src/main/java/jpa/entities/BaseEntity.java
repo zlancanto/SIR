@@ -2,10 +2,11 @@ package jpa.entities;
 
 import jakarta.persistence.*;
 
+import java.io.Serializable;
 import java.time.Instant;
 
 @MappedSuperclass
-public abstract class BaseEntity {
+public abstract class BaseEntity implements Serializable {
     @Column(nullable = false, updatable = false)
     protected Instant createdAt;
 
