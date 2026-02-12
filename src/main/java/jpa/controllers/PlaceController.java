@@ -1,6 +1,6 @@
 package jpa.controllers;
 
-import jpa.services.PlaceService;
+import jpa.services.interfaces.PlaceService;
 
 public class PlaceController {
     private final PlaceService placeService;

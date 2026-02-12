@@ -1,8 +1,8 @@
 package jpa.config;
 
 import jpa.controllers.OrganizerController;
-import jpa.dao.impl.OrganizerDao;
-import jpa.services.OrganizerService;
+import jpa.dao.abstracts.OrganizerDao;
+import jpa.services.interfaces.OrganizerService;
 
 public final class OrganizerSingleton {
     private static OrganizerSingleton daoInstance;

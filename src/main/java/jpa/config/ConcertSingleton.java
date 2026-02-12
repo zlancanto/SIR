@@ -1,8 +1,8 @@
 package jpa.config;
 
 import jpa.controllers.ConcertController;
-import jpa.dao.impl.ConcertDao;
-import jpa.services.ConcertService;
+import jpa.dao.abstracts.ConcertDao;
+import jpa.services.interfaces.ConcertService;
 
 public final class ConcertSingleton {
     private static ConcertSingleton daoInstance;

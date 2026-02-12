@@ -1,6 +1,6 @@
 package jpa.controllers;
 
-import jpa.services.ConcertService;
+import jpa.services.interfaces.ConcertService;
 
 public class ConcertController {
     private final ConcertService concertService;

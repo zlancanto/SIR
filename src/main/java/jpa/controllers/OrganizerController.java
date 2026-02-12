@@ -1,6 +1,6 @@
 package jpa.controllers;
 
-import jpa.services.OrganizerService;
+import jpa.services.interfaces.OrganizerService;
 
 public class OrganizerController {
     private final OrganizerService organizerService;

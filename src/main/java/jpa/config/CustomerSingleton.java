@@ -1,8 +1,8 @@
 package jpa.config;
 
 import jpa.controllers.CustomerController;
-import jpa.dao.impl.CustomerDao;
-import jpa.services.CustomerService;
+import jpa.dao.abstracts.CustomerDao;
+import jpa.services.interfaces.CustomerService;
 
 public final class CustomerSingleton {
     private static CustomerSingleton daoInstance;

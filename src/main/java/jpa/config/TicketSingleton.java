@@ -1,8 +1,8 @@
 package jpa.config;
 
 import jpa.controllers.TicketController;
-import jpa.dao.impl.TicketDao;
-import jpa.services.TicketService;
+import jpa.dao.abstracts.TicketDao;
+import jpa.services.interfaces.TicketService;
 
 public final class TicketSingleton {
     private static TicketSingleton daoInstance;

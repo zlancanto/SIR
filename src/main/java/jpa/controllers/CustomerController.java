@@ -1,6 +1,6 @@
 package jpa.controllers;
 
-import jpa.services.CustomerService;
+import jpa.services.interfaces.CustomerService;
 
 public class CustomerController {
     private final CustomerService customerService;

@@ -1,8 +1,8 @@
 package jpa.config;
 
 import jpa.controllers.PlaceController;
-import jpa.dao.impl.PlaceDao;
-import jpa.services.PlaceService;
+import jpa.dao.abstracts.PlaceDao;
+import jpa.services.interfaces.PlaceService;
 
 public final class PlaceSingleton {
     private static PlaceSingleton daoInstance;

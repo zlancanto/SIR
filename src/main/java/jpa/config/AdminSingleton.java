@@ -1,8 +1,8 @@
 package jpa.config;
 
 import jpa.controllers.AdminController;
-import jpa.dao.impl.AdminDao;
-import jpa.services.AdminService;
+import jpa.dao.abstracts.AdminDao;
+import jpa.services.interfaces.AdminService;
 
 public final class AdminSingleton {
     private static AdminSingleton daoInstance;
