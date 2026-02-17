@@ -6,5 +6,8 @@ import jpa.entities.Admin;
 import java.util.UUID;
 
 public abstract class AdminDao extends AbstractJpaDao<UUID, Admin> {
-    
+
+    protected AdminDao() {
+        super(Admin.class);
+    }
 }

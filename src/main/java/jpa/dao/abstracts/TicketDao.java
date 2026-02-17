@@ -7,6 +7,10 @@ import java.util.List;
 import java.util.UUID;
 
 public abstract class TicketDao extends AbstractJpaDao<UUID, Ticket> {
-    protected abstract List<Ticket> findByPriceLowerThan(double maxPrice);
-    protected abstract List<Ticket> findAvailableTickets();
+    protected TicketDao() {
+        super(Ticket.class);
+    }
+
+    public abstract List<Ticket> findByPriceLowerThan(double maxPrice);
+    public abstract List<Ticket> findAvailableTickets();
 }

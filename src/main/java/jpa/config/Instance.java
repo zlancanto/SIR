@@ -20,7 +20,7 @@ public final class Instance {
     // Customer
     public static final CustomerDao CUSTOMER_DAO = new CustomerDaoImpl();
     public static final CustomerService CUSTOMER_SERVICE = new CustomerServiceImpl(CUSTOMER_DAO);
-    public static final CustomerController CUSTOMER_CONTROLLER = new CustomerController(CUSTOMER_SERVICE);
+    public static final CustomerController CUSTOMER_CONTROLLER = new CustomerController();
 
     // Organizer
     public static final OrganizerDao ORGANIZER_DAO = new OrganizerDaoImpl();

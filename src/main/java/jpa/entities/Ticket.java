@@ -2,7 +2,7 @@ package jpa.entities;
 
 import jakarta.persistence.*;
 
-import java.util.UUID;
+import java.math.BigDecimal;
 
 @Entity
 @Table(name = "tickets")
@@ -11,15 +11,12 @@ import java.util.UUID;
         query = "SELECT t FROM Ticket t WHERE t.sold = false"
 )
 public class Ticket extends BaseEntity {
-    @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID id;
 
     @Column(unique = true, nullable = false)
     private String barcode;
 
     @Column(nullable = false)
-    private Double price;
+    private BigDecimal price;
 
     @Column(nullable = false)
     private Boolean sold = false;
@@ -36,14 +33,6 @@ public class Ticket extends BaseEntity {
     @JoinColumn(name = "place_id")
     private Place place;
 
-    public UUID getId() {
-        return id;
-    }
-
-    public void setId(UUID id) {
-        this.id = id;
-    }
-
     public String getBarcode() {
         return barcode;
     }
@@ -52,11 +41,11 @@ public class Ticket extends BaseEntity {
         this.barcode = barcode;
     }
 
-    public Double getPrice() {
+    public BigDecimal getPrice() {
         return price;
     }
 
-    public void setPrice(Double price) {
+    public void setPrice(BigDecimal price) {
         this.price = price;
     }
 

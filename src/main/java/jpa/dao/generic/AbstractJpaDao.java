@@ -5,56 +5,76 @@ import jakarta.persistence.EntityTransaction;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.function.Function;
 
 public abstract class AbstractJpaDao<K, T extends Serializable> implements IGenericDao<K, T> {
 
-    private Class<T> clazz;
+    private final Class<T> clazz;
 
-    protected EntityManager entityManager;
-
-    public AbstractJpaDao() {
-        this.entityManager = EntityManagerHelper.getEntityManager();
+    protected AbstractJpaDao(Class<T> clazz) {
+        this.clazz = clazz;
     }
 
-    public void setClazz(Class<T> clazzToSet) {
-        this.clazz = clazzToSet;
+    protected EntityManager getEntityManager() {
+        return EntityManagerHelper.getEntityManager();
     }
 
+    @Override
     public T findOne(K id) {
-        return entityManager.find(clazz, id);
+        return getEntityManager().find(clazz, id);
     }
 
+    @Override
     public List<T> findAll() {
-        return entityManager.createQuery("select e from " + clazz.getName() + " as e",clazz).getResultList();
+        String jpql = "select e from " + clazz.getSimpleName() + " e";
+        return getEntityManager().createQuery(jpql, clazz).getResultList();
     }
 
+    @Override
     public void save(T entity) {
-        EntityTransaction t = this.entityManager.getTransaction();
-        t.begin();
-        entityManager.persist(entity);
-        t.commit();
-
+        executeInTransaction(em -> {
+            em.persist(entity);
+            return null;
+        });
     }
 
+    @Override
     public T update(final T entity) {
-        EntityTransaction t = this.entityManager.getTransaction();
-        t.begin();
-        T res = entityManager.merge(entity);
-        t.commit();
-        return res;
-
+        return executeInTransaction(em -> em.merge(entity));
     }
 
+    @Override
     public void delete(T entity) {
-        EntityTransaction t = this.entityManager.getTransaction();
-        t.begin();
-        entityManager.remove(entity);
-        t.commit();
+        if (entity == null) {
+            return;
+        }
 
+        executeInTransaction(em -> {
+            T managedEntity = em.contains(entity) ? entity : em.merge(entity);
+            em.remove(managedEntity);
+            return null;
+        });
     }
 
+    @Override
     public void deleteById(K entityId) {
         T entity = findOne(entityId);
         delete(entity);
+    }
+
+    protected <R> R executeInTransaction(Function<EntityManager, R> action) {
+        EntityManager em = getEntityManager();
+        EntityTransaction tx = em.getTransaction();
+        try {
+            tx.begin();
+            R result = action.apply(em);
+            tx.commit();
+            return result;
+        } catch (RuntimeException ex) {
+            if (tx.isActive()) {
+                tx.rollback();
+            }
+            throw ex;
+        }
     }
 }
