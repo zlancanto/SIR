@@ -144,10 +144,6 @@ public class UserRegistrationServiceImpl implements UserRegistrationService {
         String expectedKey = resolveAdminRegistrationKey()
                 .orElseThrow(() -> new ForbiddenException("Admin registration is disabled"));
 
-        if (expectedKey.isBlank()) {
-            throw new ForbiddenException("Admin registration is disabled");
-        }
-
         if (providedKey == null || providedKey.isBlank()) {
             throw new ForbiddenException("Missing admin registration key");
         }
