@@ -123,7 +123,6 @@ public class UserRegistrationServiceImpl implements UserRegistrationService {
             case "CUSTOMER" -> Roles.ROLE_CUSTOMER;
             case "ORGANIZER" -> Roles.ROLE_ORGANIZER;
             case "ADMIN" -> Roles.ROLE_ADMIN;
-            case "USER" -> Roles.ROLE_USER;
             default -> throw new BadRequestException("Unsupported role: " + rawRole);
         };
     }
