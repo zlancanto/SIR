@@ -7,8 +7,17 @@ import jpa.entities.User;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * JPA DAO implementation for UserDaoImpl.
+ */
 public class UserDaoImpl extends UserDao {
 
+    /**
+     * Executes findByEmail operation.
+     *
+     * @param email method parameter
+     * @return operation result
+     */
     @Override
     public Optional<User> findByEmail(String email) {
         if (email == null || email.isBlank()) {

@@ -6,11 +6,26 @@ import jpa.entities.Ticket;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * Abstract DAO contract for TicketDao.
+ */
 public abstract class TicketDao extends AbstractJpaDao<UUID, Ticket> {
     protected TicketDao() {
         super(Ticket.class);
     }
 
+    /**
+     * Executes findByPriceLowerThan operation.
+     *
+     * @param maxPrice method parameter
+     * @return operation result
+     */
     public abstract List<Ticket> findByPriceLowerThan(double maxPrice);
+
+    /**
+     * Executes findAvailableTickets operation.
+     *
+     * @return operation result
+     */
     public abstract List<Ticket> findAvailableTickets();
 }

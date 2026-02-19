@@ -8,6 +8,9 @@ import jpa.dto.exceptions.ResponseExceptionDto;
 
 import java.time.Instant;
 
+/**
+ * Exception handler BaseExceptionMapper.
+ */
 public abstract class BaseExceptionMapper {
 
     @Context
@@ -19,6 +22,7 @@ public abstract class BaseExceptionMapper {
             path = uriInfo.getRequestUri().getPath();
         }
 
+        // Keep a uniform error payload for all exception mappers.
         ResponseExceptionDto payload = new ResponseExceptionDto(
                 Instant.now(),
                 status.getStatusCode(),

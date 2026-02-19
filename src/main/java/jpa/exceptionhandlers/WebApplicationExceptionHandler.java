@@ -5,10 +5,19 @@ import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.ext.ExceptionMapper;
 import jakarta.ws.rs.ext.Provider;
 
+/**
+ * Exception handler WebApplicationExceptionHandler.
+ */
 @Provider
 public class WebApplicationExceptionHandler extends BaseExceptionMapper
         implements ExceptionMapper<WebApplicationException> {
 
+    /**
+     * Executes toResponse operation.
+     *
+     * @param exception method parameter
+     * @return operation result
+     */
     @Override
     public Response toResponse(WebApplicationException exception) {
         Response.StatusType status = exception.getResponse() != null

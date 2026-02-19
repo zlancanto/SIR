@@ -5,10 +5,19 @@ import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.ext.ExceptionMapper;
 import jakarta.ws.rs.ext.Provider;
 
+/**
+ * Exception handler NotAllowedExceptionHandler.
+ */
 @Provider
 public class NotAllowedExceptionHandler extends BaseExceptionMapper
         implements ExceptionMapper<NotAllowedException> {
 
+    /**
+     * Executes toResponse operation.
+     *
+     * @param ex method parameter
+     * @return operation result
+     */
     @Override
     public Response toResponse(NotAllowedException ex) {
         return buildResponse(

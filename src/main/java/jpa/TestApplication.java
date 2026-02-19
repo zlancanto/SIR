@@ -5,22 +5,14 @@ import jakarta.ws.rs.ApplicationPath;
 import jakarta.ws.rs.core.Application;
 import jpa.config.JacksonObjectMapperProvider;
 import jpa.controllers.UserController;
-import jpa.exceptionhandlers.BadRequestExceptionHandler;
-import jpa.exceptionhandlers.ClientErrorExceptionHandler;
-import jpa.exceptionhandlers.ForbiddenExceptionHandler;
-import jpa.exceptionhandlers.GenericExceptionHandler;
-import jpa.exceptionhandlers.IllegalArgumentExceptionHandler;
-import jpa.exceptionhandlers.IllegalStateExceptionHandler;
-import jpa.exceptionhandlers.NotAllowedExceptionHandler;
-import jpa.exceptionhandlers.NotAuthorizedExceptionHandler;
-import jpa.exceptionhandlers.NotFoundExceptionHandler;
-import jpa.exceptionhandlers.NotSupportedExceptionHandler;
-import jpa.exceptionhandlers.ServerErrorExceptionHandler;
-import jpa.exceptionhandlers.WebApplicationExceptionHandler;
+import jpa.exceptionhandlers.*;
 
 import java.util.HashSet;
 import java.util.Set;
 
+/**
+ * JAX-RS application registration class.
+ */
 @ApplicationPath("/")
 public class TestApplication extends Application {
 

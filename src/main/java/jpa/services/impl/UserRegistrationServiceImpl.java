@@ -23,6 +23,9 @@ import java.util.regex.Pattern;
 
 import static jpa.utils.StringValidation.normalizeRequired;
 
+/**
+ * Service implementation UserRegistrationServiceImpl.
+ */
 public class UserRegistrationServiceImpl implements UserRegistrationService {
 
     private static final Pattern EMAIL_PATTERN =
@@ -32,16 +35,28 @@ public class UserRegistrationServiceImpl implements UserRegistrationService {
 
     private final UserDao userDao;
 
+    /**
+     * Creates a new instance of UserRegistrationServiceImpl.
+     *
+     * @param userDao method parameter
+     */
     public UserRegistrationServiceImpl(UserDao userDao) {
         this.userDao = userDao;
     }
 
+    /**
+     * Executes register operation.
+     *
+     * @param request method parameter
+     * @return operation result
+     */
     @Override
     public ResponseUserDto register(CreateUserRequestDto request) {
         if (request == null) {
             throw new BadRequestException("Request body is required");
         }
 
+        // Public registration only allows business roles that can self-sign up.
         Roles role = parseRole(request.role());
         if (!isSelfRegistrationAllowed(role)) {
             throw new ForbiddenException("Self-registration is not allowed for role " + role.name());
@@ -56,6 +71,13 @@ public class UserRegistrationServiceImpl implements UserRegistrationService {
         );
     }
 
+    /**
+     * Executes registerAdmin operation.
+     *
+     * @param request              method parameter
+     * @param adminRegistrationKey method parameter
+     * @return operation result
+     */
     @Override
     public ResponseUserDto registerAdmin(CreateAdminRequestDto request, String adminRegistrationKey) {
         if (request == null) {
@@ -80,6 +102,7 @@ public class UserRegistrationServiceImpl implements UserRegistrationService {
             String rawLastName,
             Roles role
     ) {
+        // Normalize once so validation/storage are consistent across all endpoints.
         String email = normalizeRequired("email", rawEmail).toLowerCase(Locale.ROOT);
         String password = normalizeRequired("password", rawPassword);
         String firstName = normalizeRequired("firstName", rawFirstName);
@@ -148,6 +171,7 @@ public class UserRegistrationServiceImpl implements UserRegistrationService {
             throw new ForbiddenException("Missing admin registration key");
         }
 
+        // Constant-time comparison avoids leaking key length/prefix matches through timing.
         boolean valid = MessageDigest.isEqual(
                 providedKey.getBytes(StandardCharsets.UTF_8),
                 expectedKey.getBytes(StandardCharsets.UTF_8)

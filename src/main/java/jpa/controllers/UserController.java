@@ -1,10 +1,6 @@
 package jpa.controllers;
 
-import jakarta.ws.rs.Consumes;
-import jakarta.ws.rs.HeaderParam;
-import jakarta.ws.rs.POST;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import jpa.config.Instance;
@@ -13,6 +9,9 @@ import jpa.dto.user.CreateUserRequestDto;
 import jpa.dto.user.ResponseUserDto;
 import jpa.services.interfaces.UserRegistrationService;
 
+/**
+ * REST controller exposing UserController endpoints.
+ */
 @Path("/users")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
@@ -22,10 +21,19 @@ public class UserController {
 
     private final UserRegistrationService userRegistrationService;
 
+    /**
+     * Creates a new instance of UserController.
+     */
     public UserController() {
         this.userRegistrationService = Instance.USER_REGISTRATION_SERVICE;
     }
 
+    /**
+     * Executes register operation.
+     *
+     * @param request method parameter
+     * @return operation result
+     */
     @POST
     @Path("/register")
     public Response register(CreateUserRequestDto request) {

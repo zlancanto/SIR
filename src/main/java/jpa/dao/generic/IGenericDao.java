@@ -3,6 +3,9 @@ package jpa.dao.generic;
 import java.io.Serializable;
 import java.util.List;
 
+/**
+ * Generic DAO infrastructure component IGenericDao.
+ */
 public interface IGenericDao<K, T extends Serializable> {
 
     T findOne(final K id);

@@ -11,8 +11,18 @@ import jpa.entities.Concert;
 import java.time.Instant;
 import java.util.List;
 
+/**
+ * JPA DAO implementation for ConcertDaoImpl.
+ */
 public class ConcertDaoImpl extends ConcertDao {
 
+    /**
+     * Executes findConcertsByDateRange operation.
+     *
+     * @param start method parameter
+     * @param end   method parameter
+     * @return operation result
+     */
     @Override
     public List<Concert> findConcertsByDateRange(Instant start, Instant end) {
         EntityManager em = getEntityManager();

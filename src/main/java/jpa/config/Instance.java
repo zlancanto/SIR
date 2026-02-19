@@ -6,6 +6,9 @@ import jpa.dao.impl.*;
 import jpa.services.impl.*;
 import jpa.services.interfaces.*;
 
+/**
+ * Configuration component Instance.
+ */
 public final class Instance {
     // Admin
     public static final AdminDao ADMIN_DAO = new AdminDaoImpl();
@@ -37,5 +40,6 @@ public final class Instance {
     public static final TicketService TICKET_SERVICE = new TicketServiceImpl(TICKET_DAO);
     public static final TicketController TICKET_CONTROLLER = new TicketController(TICKET_SERVICE);
 
-    private Instance() {}
+    private Instance() {
+    }
 }

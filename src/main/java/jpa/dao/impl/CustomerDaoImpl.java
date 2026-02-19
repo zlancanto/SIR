@@ -7,7 +7,16 @@ import jpa.entities.Customer;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * JPA DAO implementation for CustomerDaoImpl.
+ */
 public class CustomerDaoImpl extends CustomerDao {
+    /**
+     * Executes findByEmail operation.
+     *
+     * @param email method parameter
+     * @return operation result
+     */
     @Override
     public Optional<Customer> findByEmail(String email) {
         if (email == null || email.isBlank()) {
