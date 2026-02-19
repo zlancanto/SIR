@@ -4,7 +4,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 
 /**
- * JPA entity Place.
+ * Venue reference entity used by concerts.
  */
 @Entity
 @Table(name = "places")
@@ -17,90 +17,90 @@ public class Place extends BaseEntity {
     private Integer capacity;
 
     /**
-     * Executes getName operation.
+     * Returns the venue name.
      *
-     * @return operation result
+     * @return venue name
      */
     public String getName() {
         return name;
     }
 
     /**
-     * Executes setName operation.
+     * Sets the venue name.
      *
-     * @param name method parameter
+     * @param name venue name
      */
     public void setName(String name) {
         this.name = name;
     }
 
     /**
-     * Executes getAddress operation.
+     * Returns the street address of the venue.
      *
-     * @return operation result
+     * @return street address
      */
     public String getAddress() {
         return address;
     }
 
     /**
-     * Executes setAddress operation.
+     * Sets the street address of the venue.
      *
-     * @param address method parameter
+     * @param address street address
      */
     public void setAddress(String address) {
         this.address = address;
     }
 
     /**
-     * Executes getZipCode operation.
+     * Returns the postal code of the venue.
      *
-     * @return operation result
+     * @return postal code
      */
     public Integer getZipCode() {
         return zipCode;
     }
 
     /**
-     * Executes setZipCode operation.
+     * Sets the postal code of the venue.
      *
-     * @param zipCode method parameter
+     * @param zipCode postal code
      */
     public void setZipCode(Integer zipCode) {
         this.zipCode = zipCode;
     }
 
     /**
-     * Executes getCity operation.
+     * Returns the city where the venue is located.
      *
-     * @return operation result
+     * @return city name
      */
     public String getCity() {
         return city;
     }
 
     /**
-     * Executes setCity operation.
+     * Sets the city where the venue is located.
      *
-     * @param city method parameter
+     * @param city city name
      */
     public void setCity(String city) {
         this.city = city;
     }
 
     /**
-     * Executes getCapacity operation.
+     * Returns the maximum audience capacity of the venue.
      *
-     * @return operation result
+     * @return maximum number of seats
      */
     public Integer getCapacity() {
         return capacity;
     }
 
     /**
-     * Executes setCapacity operation.
+     * Sets the maximum audience capacity of the venue.
      *
-     * @param capacity method parameter
+     * @param capacity maximum number of seats
      */
     public void setCapacity(Integer capacity) {
         this.capacity = capacity;

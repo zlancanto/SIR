@@ -8,39 +8,43 @@ import java.util.List;
 import java.util.UUID;
 
 /**
- * Service contract for ConcertService.
+ * Application service for concert lifecycle operations.
+ *
+ * <p>The lifecycle is:
+ * pending creation request from an organizer, then validation by an admin,
+ * then publication for public listing.</p>
  */
 public interface ConcertService {
     /**
-     * Executes createEvent operation.
+     * Creates a new concert in {@code PENDING_VALIDATION} status.
      *
-     * @param request method parameter
-     * @return operation result
+     * @param request creation payload containing title, date, organizer and place references
+     * @return created concert with persisted identifiers and timestamps
      */
     ResponseConcertDetailsDto createConcert(CreateConcertRequestDto request);
 
     /**
-     * Executes validateEvent operation.
+     * Validates a pending concert and publishes it.
      *
-     * @param concertId method parameter
-     * @param request method parameter
-     * @param adminActionKey method parameter
-     * @return operation result
+     * @param concertId identifier of the concert to validate
+     * @param request payload containing the validating admin identifier
+     * @param adminActionKey privileged key required for admin actions
+     * @return updated concert after status transition to {@code PUBLISHED}
      */
     ResponseConcertDetailsDto validateConcert(UUID concertId, ValidateConcertRequestDto request, String adminActionKey);
 
     /**
-     * Executes getPublicEvents operation.
+     * Lists concerts visible to public users.
      *
-     * @return operation result
+     * @return concerts currently published
      */
     List<ResponseConcertDetailsDto> getPublicConcerts();
 
     /**
-     * Executes getPendingEvents operation.
+     * Lists concerts awaiting admin validation.
      *
-     * @param adminActionKey method parameter
-     * @return operation result
+     * @param adminActionKey privileged key required for admin actions
+     * @return concerts with status {@code PENDING_VALIDATION}
      */
     List<ResponseConcertDetailsDto> getPendingConcerts(String adminActionKey);
 }

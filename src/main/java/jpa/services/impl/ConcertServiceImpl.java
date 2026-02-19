@@ -30,7 +30,11 @@ import java.util.UUID;
 import static jpa.utils.StringValidation.normalizeRequired;
 
 /**
- * Service implementation ConcertServiceImpl.
+ * Default implementation of concert lifecycle use cases.
+ *
+ * <p>This service validates input payloads, resolves linked entities
+ * (organizer, place, admin), enforces workflow transitions and maps
+ * persisted entities to API DTOs.</p>
  */
 public class ConcertServiceImpl implements ConcertService {
 
@@ -40,12 +44,12 @@ public class ConcertServiceImpl implements ConcertService {
     private final AdminDao adminDao;
 
     /**
-     * Creates a new instance of ConcertServiceImpl.
+     * Creates a service with DAO dependencies required by concert workflows.
      *
-     * @param concertDao method parameter
-     * @param organizerDao method parameter
-     * @param placeDao method parameter
-     * @param adminDao method parameter
+     * @param concertDao DAO used to persist and query concerts
+     * @param organizerDao DAO used to resolve organizers
+     * @param placeDao DAO used to resolve places
+     * @param adminDao DAO used to resolve admins
      */
     public ConcertServiceImpl(
             ConcertDao concertDao,
@@ -60,10 +64,10 @@ public class ConcertServiceImpl implements ConcertService {
     }
 
     /**
-     * Executes createEvent operation.
+     * Creates a new concert proposal after validating request consistency.
      *
-     * @param request method parameter
-     * @return operation result
+     * @param request creation payload from organizer side
+     * @return created concert mapped to response DTO
      */
     @Override
     public ResponseConcertDetailsDto createConcert(CreateConcertRequestDto request) {
@@ -114,12 +118,12 @@ public class ConcertServiceImpl implements ConcertService {
     }
 
     /**
-     * Executes validateEvent operation.
+     * Validates a pending concert and publishes it.
      *
-     * @param concertId method parameter
-     * @param request method parameter
-     * @param adminActionKey method parameter
-     * @return operation result
+     * @param concertId identifier of the target concert
+     * @param request validation payload containing admin identifier
+     * @param adminActionKey privileged header value required for admin actions
+     * @return updated concert mapped to response DTO
      */
     @Override
     public ResponseConcertDetailsDto validateConcert(
@@ -166,9 +170,9 @@ public class ConcertServiceImpl implements ConcertService {
     }
 
     /**
-     * Executes getPublicEvents operation.
+     * Returns all published concerts.
      *
-     * @return operation result
+     * @return published concerts
      */
     @Override
     public List<ResponseConcertDetailsDto> getPublicConcerts() {
@@ -179,10 +183,10 @@ public class ConcertServiceImpl implements ConcertService {
     }
 
     /**
-     * Executes getPendingEvents operation.
+     * Returns concerts waiting for validation.
      *
-     * @param adminActionKey method parameter
-     * @return operation result
+     * @param adminActionKey privileged header value required for admin actions
+     * @return pending concerts
      */
     @Override
     public List<ResponseConcertDetailsDto> getPendingConcerts(String adminActionKey) {

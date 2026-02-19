@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.UUID;
 
 /**
- * REST controller exposing ConcertController endpoints.
+ * REST endpoints for concert creation, validation and listing.
  */
 @Path("/concerts")
 @Produces(MediaType.APPLICATION_JSON)
@@ -24,16 +24,17 @@ public class ConcertController {
     private final ConcertService concertService;
 
     /**
-     * Creates a new instance of ConcertController.
+     * Builds the controller with default application wiring.
      */
     public ConcertController() {
         this.concertService = Instance.CONCERT_SERVICE;
     }
 
     /**
-     * Executes create operation.
+     * Creates a concert proposal.
      *
-     * @return operation result
+     * @param request creation payload sent by the organizer
+     * @return HTTP 201 with created concert details
      */
     @POST
     @Path("/create")
@@ -45,12 +46,12 @@ public class ConcertController {
     }
 
     /**
-     * Executes validate operation.
+     * Validates a pending concert.
      *
-     * @param concertId method parameter
-     * @param adminActionKey method parameter
-     * @param request method parameter
-     * @return operation result
+     * @param concertId concert identifier from path
+     * @param adminActionKey privileged key from header
+     * @param request payload containing admin identifier
+     * @return HTTP 200 with updated concert details
      */
     @POST
     @Path("/{concertId}/validate")
@@ -64,9 +65,9 @@ public class ConcertController {
     }
 
     /**
-     * Executes getPublicConcerts operation.
+     * Lists concerts available to public users.
      *
-     * @return operation result
+     * @return HTTP 200 with published concerts
      */
     @GET
     @Path("/public")
@@ -76,10 +77,10 @@ public class ConcertController {
     }
 
     /**
-     * Executes getPendingConcerts operation.
+     * Lists concerts still waiting for validation.
      *
-     * @param adminActionKey method parameter
-     * @return operation result
+     * @param adminActionKey privileged key from header
+     * @return HTTP 200 with pending concerts
      */
     @GET
     @Path("/pending")

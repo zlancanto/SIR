@@ -4,7 +4,13 @@ import java.time.Instant;
 import java.util.UUID;
 
 /**
- * Request payload used by organizers to create a concert.
+ * Payload used by an organizer to request concert creation.
+ *
+ * @param title concert title as displayed publicly
+ * @param artist optional artist name
+ * @param date scheduled date and time of the concert
+ * @param organizerId identifier of the organizer creating the concert
+ * @param placeId identifier of the venue where the concert will be held
  */
 public record CreateConcertRequestDto(
         String title,

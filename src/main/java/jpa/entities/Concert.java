@@ -8,7 +8,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * JPA entity Concert.
+ * Concert aggregate created by an organizer and optionally validated by an admin.
+ *
+ * <p>New concerts start in {@code PENDING_VALIDATION} status and become
+ * publicly visible when promoted to {@code PUBLISHED}.</p>
  */
 @Entity
 @Table(name = "concerts")
@@ -42,144 +45,144 @@ public class Concert extends BaseEntity {
     private List<Ticket> tickets = new ArrayList<>();
 
     /**
-     * Executes getAdmin operation.
+     * Returns the admin who validated the concert.
      *
-     * @return operation result
+     * @return validating admin, or {@code null} while pending
      */
     public Admin getAdmin() {
         return admin;
     }
 
     /**
-     * Executes setAdmin operation.
+     * Sets the admin who validated the concert.
      *
-     * @param admin method parameter
+     * @param admin validating admin
      */
     public void setAdmin(Admin admin) {
         this.admin = admin;
     }
 
     /**
-     * Executes getTitle operation.
+     * Returns the concert title.
      *
-     * @return operation result
+     * @return title shown in listings
      */
     public String getTitle() {
         return title;
     }
 
     /**
-     * Executes setTitle operation.
+     * Sets the concert title.
      *
-     * @param title method parameter
+     * @param title title shown in listings
      */
     public void setTitle(String title) {
         this.title = title;
     }
 
     /**
-     * Executes getArtist operation.
+     * Returns the artist name.
      *
-     * @return operation result
+     * @return artist name, may be {@code null}
      */
     public String getArtist() {
         return artist;
     }
 
     /**
-     * Executes setArtist operation.
+     * Sets the artist name.
      *
-     * @param artist method parameter
+     * @param artist artist name, may be {@code null}
      */
     public void setArtist(String artist) {
         this.artist = artist;
     }
 
     /**
-     * Executes getDate operation.
+     * Returns the scheduled date and time.
      *
-     * @return operation result
+     * @return concert schedule
      */
     public Instant getDate() {
         return date;
     }
 
     /**
-     * Executes setDate operation.
+     * Sets the scheduled date and time.
      *
-     * @param date method parameter
+     * @param date concert schedule
      */
     public void setDate(Instant date) {
         this.date = date;
     }
 
     /**
-     * Executes getStatus operation.
+     * Returns the workflow status.
      *
-     * @return operation result
+     * @return current concert status
      */
     public ConcertStatus getStatus() {
         return status;
     }
 
     /**
-     * Executes setStatus operation.
+     * Sets the workflow status.
      *
-     * @param status method parameter
+     * @param status current concert status
      */
     public void setStatus(ConcertStatus status) {
         this.status = status;
     }
 
     /**
-     * Executes getOrganizer operation.
+     * Returns the organizer that created this concert.
      *
-     * @return operation result
+     * @return linked organizer
      */
     public Organizer getOrganizer() {
         return organizer;
     }
 
     /**
-     * Executes setOrganizer operation.
+     * Sets the organizer that created this concert.
      *
-     * @param organizer method parameter
+     * @param organizer linked organizer
      */
     public void setOrganizer(Organizer organizer) {
         this.organizer = organizer;
     }
 
     /**
-     * Executes getPlace operation.
+     * Returns the venue where the concert will be held.
      *
-     * @return operation result
+     * @return linked venue
      */
     public Place getPlace() {
         return place;
     }
 
     /**
-     * Executes setPlace operation.
+     * Sets the venue where the concert will be held.
      *
-     * @param place method parameter
+     * @param place linked venue
      */
     public void setPlace(Place place) {
         this.place = place;
     }
 
     /**
-     * Executes getTickets operation.
+     * Returns tickets currently attached to this concert.
      *
-     * @return operation result
+     * @return mutable ticket collection managed by JPA
      */
     public List<Ticket> getTickets() {
         return tickets;
     }
 
     /**
-     * Executes setTickets operation.
+     * Replaces the ticket collection of this concert.
      *
-     * @param tickets method parameter
+     * @param tickets replacement ticket collection
      */
     public void setTickets(List<Ticket> tickets) {
         this.tickets = tickets;

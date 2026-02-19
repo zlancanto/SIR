@@ -3,7 +3,9 @@ package jpa.dto.concert;
 import java.util.UUID;
 
 /**
- * Request payload used by an admin to validate a pending concert.
+ * Payload used to validate a pending concert.
+ *
+ * @param adminId identifier of the admin performing the validation action
  */
 public record ValidateConcertRequestDto(
         UUID adminId

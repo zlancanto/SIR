@@ -4,15 +4,18 @@ import jakarta.persistence.*;
 
 import java.math.BigDecimal;
 
+/**
+ * Sellable ticket for a single concert.
+ *
+ * <p>A ticket is available while {@code sold = false} and can later be
+ * associated with a customer once purchased.</p>
+ */
 @Entity
 @Table(name = "tickets")
 @NamedQuery(
         name = "Ticket.findAvailable",
         query = "SELECT t FROM Ticket t WHERE t.sold = false"
 )
-/**
- * JPA entity Ticket.
- */
 public class Ticket extends BaseEntity {
 
     @Column(unique = true, nullable = false)
@@ -33,72 +36,72 @@ public class Ticket extends BaseEntity {
     private Concert concert;
 
     /**
-     * Executes getBarcode operation.
+     * Returns the unique ticket barcode.
      *
-     * @return operation result
+     * @return barcode value
      */
     public String getBarcode() {
         return barcode;
     }
 
     /**
-     * Executes setBarcode operation.
+     * Sets the unique ticket barcode.
      *
-     * @param barcode method parameter
+     * @param barcode barcode value
      */
     public void setBarcode(String barcode) {
         this.barcode = barcode;
     }
 
     /**
-     * Executes getPrice operation.
+     * Returns the ticket price.
      *
-     * @return operation result
+     * @return price value
      */
     public BigDecimal getPrice() {
         return price;
     }
 
     /**
-     * Executes setPrice operation.
+     * Sets the ticket price.
      *
-     * @param price method parameter
+     * @param price price value
      */
     public void setPrice(BigDecimal price) {
         this.price = price;
     }
 
     /**
-     * Executes getCustomer operation.
+     * Returns the customer owning this ticket.
      *
-     * @return operation result
+     * @return linked customer, or {@code null} when the ticket is not sold
      */
     public Customer getCustomer() {
         return customer;
     }
 
     /**
-     * Executes setCustomer operation.
+     * Associates this ticket with a customer.
      *
-     * @param customer method parameter
+     * @param customer linked customer
      */
     public void setCustomer(Customer customer) {
         this.customer = customer;
     }
 
     /**
-     * Executes getConcert operation.
+     * Returns the concert this ticket belongs to.
      *
-     * @return operation result
+     * @return linked concert
      */
     public Concert getConcert() {
         return concert;
     }
 
     /**
-     * Executes setConcert operation.
+     * Associates this ticket with a concert.
      *
-     * @param concert method parameter
+     * @param concert linked concert
      */
     public void setConcert(Concert concert) {
         this.concert = concert;
