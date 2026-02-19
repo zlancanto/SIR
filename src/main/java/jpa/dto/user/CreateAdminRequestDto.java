@@ -1,6 +1,6 @@
-package jpa.dto.customer;
+package jpa.dto.user;
 
-public record CreateCustomerRequestDto(
+public record CreateAdminRequestDto(
         String email,
         String password,
         String firstName,

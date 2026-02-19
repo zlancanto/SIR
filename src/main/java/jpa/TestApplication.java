@@ -3,7 +3,7 @@ package jpa;
 import io.swagger.v3.jaxrs2.integration.resources.OpenApiResource;
 import jakarta.ws.rs.ApplicationPath;
 import jakarta.ws.rs.core.Application;
-import jpa.controllers.CustomerController;
+import jpa.controllers.UserController;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -18,7 +18,7 @@ public class TestApplication extends Application {
         final Set<Class<?>> clazzes = new HashSet<>();
 
         clazzes.add(OpenApiResource.class);
-        clazzes.add(CustomerController.class);
+        clazzes.add(UserController.class);
 
         return clazzes;
     }

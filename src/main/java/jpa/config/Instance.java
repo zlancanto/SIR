@@ -17,10 +17,10 @@ public final class Instance {
     public static final ConcertService CONCERT_SERVICE = new ConcertServiceImpl(CONCERT_DAO);
     public static final ConcertController CONCERT_CONTROLLER = new ConcertController(CONCERT_SERVICE);
 
-    // Customer
-    public static final CustomerDao CUSTOMER_DAO = new CustomerDaoImpl();
-    public static final CustomerService CUSTOMER_SERVICE = new CustomerServiceImpl(CUSTOMER_DAO);
-    public static final CustomerController CUSTOMER_CONTROLLER = new CustomerController();
+    // User registration
+    public static final UserDao USER_DAO = new UserDaoImpl();
+    public static final UserRegistrationService USER_REGISTRATION_SERVICE = new UserRegistrationServiceImpl(USER_DAO);
+    public static final UserController USER_CONTROLLER = new UserController();
 
     // Organizer
     public static final OrganizerDao ORGANIZER_DAO = new OrganizerDaoImpl();
