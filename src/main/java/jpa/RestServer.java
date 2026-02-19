@@ -2,6 +2,7 @@ package jpa;
 
 import io.undertow.Undertow;
 import org.jboss.resteasy.plugins.server.undertow.UndertowJaxrsServer;
+import jpa.config.ReferenceDataInitializer;
 
 import java.util.logging.Logger;
 
@@ -18,6 +19,8 @@ public class RestServer {
      * @param args method parameter
      */
     public static void main(String[] args) {
+        ReferenceDataInitializer.seedPlacesIfEmpty();
+
         UndertowJaxrsServer ut = new UndertowJaxrsServer();
         TestApplication ta = new TestApplication();
 
