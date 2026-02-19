@@ -4,6 +4,7 @@ import jakarta.ws.rs.BadRequestException;
 import jakarta.ws.rs.ClientErrorException;
 import jakarta.ws.rs.ForbiddenException;
 import jakarta.ws.rs.core.Response;
+import jpa.config.AdminConfig;
 import jpa.dao.abstracts.UserDao;
 import jpa.dto.user.CreateAdminRequestDto;
 import jpa.dto.user.CreateUserRequestDto;
@@ -12,7 +13,7 @@ import jpa.entities.Admin;
 import jpa.entities.Customer;
 import jpa.entities.Organizer;
 import jpa.entities.User;
-import jpa.roles.Roles;
+import jpa.enums.Roles;
 import jpa.services.interfaces.UserRegistrationService;
 
 import java.nio.charset.StandardCharsets;
@@ -30,8 +31,6 @@ public class UserRegistrationServiceImpl implements UserRegistrationService {
 
     private static final Pattern EMAIL_PATTERN =
             Pattern.compile("^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$");
-    private static final String ADMIN_REGISTRATION_KEY_PROPERTY = "app.admin.registration.key";
-    private static final String ADMIN_REGISTRATION_KEY_ENV = "APP_ADMIN_REGISTRATION_KEY";
 
     private final UserDao userDao;
 
@@ -183,12 +182,12 @@ public class UserRegistrationServiceImpl implements UserRegistrationService {
     }
 
     private Optional<String> resolveAdminRegistrationKey() {
-        String fromProperty = System.getProperty(ADMIN_REGISTRATION_KEY_PROPERTY);
+        String fromProperty = System.getProperty(AdminConfig.ADMIN_REGISTRATION_KEY_PROPERTY);
         if (fromProperty != null && !fromProperty.isBlank()) {
             return Optional.of(fromProperty.trim());
         }
 
-        String fromEnv = System.getenv(ADMIN_REGISTRATION_KEY_ENV);
+        String fromEnv = System.getenv(AdminConfig.ADMIN_REGISTRATION_KEY_ENV);
         if (fromEnv != null && !fromEnv.isBlank()) {
             return Optional.of(fromEnv.trim());
         }

@@ -1,6 +1,7 @@
 package jpa.entities;
 
 import jakarta.persistence.*;
+import jpa.enums.ConcertStatus;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -10,13 +11,20 @@ import java.util.List;
  * JPA entity Concert.
  */
 @Entity
+@Table(name = "concerts")
 public class Concert extends BaseEntity {
 
     @Column(nullable = false)
     private String title;
 
     private String artist;
+
+    @Column(nullable = false)
     private Instant date;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private ConcertStatus status = ConcertStatus.PENDING_VALIDATION;
 
     @ManyToOne
     @JoinColumn(name = "admin_id")
@@ -103,6 +111,60 @@ public class Concert extends BaseEntity {
      */
     public void setDate(Instant date) {
         this.date = date;
+    }
+
+    /**
+     * Executes getStatus operation.
+     *
+     * @return operation result
+     */
+    public ConcertStatus getStatus() {
+        return status;
+    }
+
+    /**
+     * Executes setStatus operation.
+     *
+     * @param status method parameter
+     */
+    public void setStatus(ConcertStatus status) {
+        this.status = status;
+    }
+
+    /**
+     * Executes getOrganizer operation.
+     *
+     * @return operation result
+     */
+    public Organizer getOrganizer() {
+        return organizer;
+    }
+
+    /**
+     * Executes setOrganizer operation.
+     *
+     * @param organizer method parameter
+     */
+    public void setOrganizer(Organizer organizer) {
+        this.organizer = organizer;
+    }
+
+    /**
+     * Executes getPlace operation.
+     *
+     * @return operation result
+     */
+    public Place getPlace() {
+        return place;
+    }
+
+    /**
+     * Executes setPlace operation.
+     *
+     * @param place method parameter
+     */
+    public void setPlace(Place place) {
+        this.place = place;
     }
 
     /**

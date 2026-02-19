@@ -1,4 +1,4 @@
-package jpa.roles;
+package jpa.enums;
 
 /**
  * Role declaration type Roles.

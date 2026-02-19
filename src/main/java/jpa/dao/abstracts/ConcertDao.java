@@ -2,6 +2,7 @@ package jpa.dao.abstracts;
 
 import jpa.dao.generic.AbstractJpaDao;
 import jpa.entities.Concert;
+import jpa.enums.ConcertStatus;
 
 import java.time.Instant;
 import java.util.List;
@@ -24,4 +25,12 @@ public abstract class ConcertDao extends AbstractJpaDao<UUID, Concert> {
      * @return operation result
      */
     public abstract List<Concert> findConcertsByDateRange(Instant start, Instant end);
+
+    /**
+     * Executes findByStatus operation.
+     *
+     * @param status method parameter
+     * @return operation result
+     */
+    public abstract List<Concert> findByStatus(ConcertStatus status);
 }

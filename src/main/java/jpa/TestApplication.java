@@ -4,6 +4,7 @@ import io.swagger.v3.jaxrs2.integration.resources.OpenApiResource;
 import jakarta.ws.rs.ApplicationPath;
 import jakarta.ws.rs.core.Application;
 import jpa.config.JacksonObjectMapperProvider;
+import jpa.controllers.ConcertController;
 import jpa.controllers.UserController;
 import jpa.exceptionhandlers.*;
 
@@ -24,6 +25,7 @@ public class TestApplication extends Application {
 
         clazzes.add(OpenApiResource.class);
         clazzes.add(UserController.class);
+        clazzes.add(ConcertController.class);
 
         clazzes.add(JacksonObjectMapperProvider.class);
 
