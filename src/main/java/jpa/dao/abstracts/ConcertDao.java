@@ -33,4 +33,20 @@ public abstract class ConcertDao extends AbstractJpaDao<UUID, Concert> {
      * @return operation result
      */
     public abstract List<Concert> findByStatus(ConcertStatus status);
+
+    /**
+     * Returns true when a place already has a concert in the requested slot window.
+     *
+     * @param placeId venue identifier
+     * @param windowStartExclusive lower bound of the start-time window (exclusive)
+     * @param windowEndExclusive upper bound of the start-time window (exclusive)
+     * @param blockingStatuses statuses that should block a new reservation
+     * @return true if a conflicting concert exists
+     */
+    public abstract boolean existsPlaceBookingConflict(
+            UUID placeId,
+            Instant windowStartExclusive,
+            Instant windowEndExclusive,
+            List<ConcertStatus> blockingStatuses
+    );
 }

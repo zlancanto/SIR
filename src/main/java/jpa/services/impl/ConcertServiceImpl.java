@@ -22,6 +22,7 @@ import jpa.services.interfaces.ConcertService;
 
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
+import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
@@ -37,6 +38,13 @@ import static jpa.utils.StringValidation.normalizeRequired;
  * persisted entities to API DTOs.</p>
  */
 public class ConcertServiceImpl implements ConcertService {
+    /* Until explicit start/end are modeled,
+    * each concert reserves a venue for a fixed 3-hour slot. */
+    private static final Duration PLACE_BOOKING_DURATION = Duration.ofHours(3);
+    private static final List<ConcertStatus> PLACE_BOOKING_BLOCKING_STATUSES = List.of(
+            ConcertStatus.PENDING_VALIDATION,
+            ConcertStatus.PUBLISHED
+    );
 
     private final ConcertDao concertDao;
     private final OrganizerDao organizerDao;
@@ -102,6 +110,23 @@ public class ConcertServiceImpl implements ConcertService {
         Place place = placeDao.findOne(request.placeId());
         if (place == null) {
             throw new NotFoundException("Place not found");
+        }
+
+        Instant bookingWindowStart = request.date().minus(PLACE_BOOKING_DURATION);
+        Instant bookingWindowEnd = request.date().plus(PLACE_BOOKING_DURATION);
+
+        boolean placeAlreadyBooked = concertDao.existsPlaceBookingConflict(
+                place.getId(),
+                bookingWindowStart,
+                bookingWindowEnd,
+                PLACE_BOOKING_BLOCKING_STATUSES
+        );
+
+        if (placeAlreadyBooked) {
+            throw new ClientErrorException(
+                    "Place already booked for the requested time slot",
+                    Response.Status.CONFLICT
+            );
         }
 
         Concert concert = new Concert();

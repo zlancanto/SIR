@@ -11,6 +11,7 @@ import jpa.enums.ConcertStatus;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * JPA DAO implementation for ConcertDaoImpl.
@@ -52,5 +53,32 @@ public class ConcertDaoImpl extends ConcertDao {
         return em.createQuery(jpql, Concert.class)
                 .setParameter("status", status)
                 .getResultList();
+    }
+
+    @Override
+    public boolean existsPlaceBookingConflict(
+            UUID placeId,
+            Instant windowStartExclusive,
+            Instant windowEndExclusive,
+            List<ConcertStatus> blockingStatuses
+    ) {
+        EntityManager em = getEntityManager();
+        String jpql = """
+                SELECT COUNT(c)
+                FROM Concert c
+                WHERE c.place.id = :placeId
+                  AND c.status IN :blockingStatuses
+                  AND c.date > :windowStart
+                  AND c.date < :windowEnd
+                """;
+
+        Long count = em.createQuery(jpql, Long.class)
+                .setParameter("placeId", placeId)
+                .setParameter("blockingStatuses", blockingStatuses)
+                .setParameter("windowStart", windowStartExclusive)
+                .setParameter("windowEnd", windowEndExclusive)
+                .getSingleResult();
+
+        return count != null && count > 0;
     }
 }
