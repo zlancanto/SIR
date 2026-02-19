@@ -32,10 +32,6 @@ public class Ticket extends BaseEntity {
     @JoinColumn(name = "concert_id")
     private Concert concert;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "place_id")
-    private Place place;
-
     /**
      * Executes getBarcode operation.
      *
@@ -108,21 +104,4 @@ public class Ticket extends BaseEntity {
         this.concert = concert;
     }
 
-    /**
-     * Executes getPlace operation.
-     *
-     * @return operation result
-     */
-    public Place getPlace() {
-        return place;
-    }
-
-    /**
-     * Executes setPlace operation.
-     *
-     * @param place method parameter
-     */
-    public void setPlace(Place place) {
-        this.place = place;
-    }
 }

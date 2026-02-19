@@ -1,11 +1,7 @@
 package jpa.entities;
 
 import jakarta.persistence.Entity;
-import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * JPA entity Place.
@@ -19,9 +15,6 @@ public class Place extends BaseEntity {
     private Integer zipCode;
     private String city;
     private Integer capacity;
-
-    @OneToMany(mappedBy = "place")
-    private List<Ticket> tickets = new ArrayList<>();
 
     /**
      * Executes getName operation.
@@ -113,21 +106,4 @@ public class Place extends BaseEntity {
         this.capacity = capacity;
     }
 
-    /**
-     * Executes getTickets operation.
-     *
-     * @return operation result
-     */
-    public List<Ticket> getTickets() {
-        return tickets;
-    }
-
-    /**
-     * Executes setTickets operation.
-     *
-     * @param tickets method parameter
-     */
-    public void setTickets(List<Ticket> tickets) {
-        this.tickets = tickets;
-    }
 }
