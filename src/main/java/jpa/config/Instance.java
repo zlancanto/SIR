@@ -1,8 +1,9 @@
 package jpa.config;
 
-import jpa.controllers.*;
 import jpa.dao.abstracts.*;
 import jpa.dao.impl.*;
+import jpa.security.AccessTokenService;
+import jpa.security.AccessTokenServiceImpl;
 import jpa.services.impl.*;
 import jpa.services.interfaces.*;
 
@@ -17,6 +18,14 @@ public final class Instance {
     public static final TicketDao TICKET_DAO = new TicketDaoImpl();
     public static final UserDao USER_DAO = new UserDaoImpl();
     public static final ConcertDao CONCERT_DAO = new ConcertDaoImpl();
+    public static final RefreshTokenDao REFRESH_TOKEN_DAO = new RefreshTokenDaoImpl();
+
+    // SECURITY
+    public static final AccessTokenService ACCESS_TOKEN_SERVICE = new AccessTokenServiceImpl(
+            AuthConfig.resolveJwtSigningKey(),
+            AuthConfig.resolveAccessTokenTtlSeconds(),
+            AuthConfig.resolveRefreshTokenTtlSeconds()
+    );
 
     // SERVICES
     public static final AdminService ADMIN_SERVICE = new AdminServiceImpl(ADMIN_DAO);
@@ -25,6 +34,7 @@ public final class Instance {
     public static final TicketService TICKET_SERVICE = new TicketServiceImpl(TICKET_DAO);
     public static final UserRegistrationService USER_REGISTRATION_SERVICE = new UserRegistrationServiceImpl(USER_DAO);
     public static final ConcertService CONCERT_SERVICE = new ConcertServiceImpl(CONCERT_DAO, ORGANIZER_DAO, PLACE_DAO, ADMIN_DAO);
+    public static final AuthService AUTH_SERVICE = new AuthServiceImpl(USER_DAO, REFRESH_TOKEN_DAO, ACCESS_TOKEN_SERVICE);
 
     private Instance() {
     }

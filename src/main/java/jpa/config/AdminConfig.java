@@ -1,6 +1,6 @@
 package jpa.config;
 
-public class AdminConfig {
+public final class AdminConfig {
     public static final String ADMIN_ACTION_HEADER = "X-Admin-Action-Key";
     public static final String ADMIN_REGISTRATION_KEY_PROPERTY = "app.admin.registration.key";
     public static final String ADMIN_REGISTRATION_KEY_ENV = "APP_ADMIN_REGISTRATION_KEY";

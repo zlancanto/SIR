@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.info.Info;
 import jakarta.ws.rs.ApplicationPath;
 import jakarta.ws.rs.core.Application;
 import jpa.config.JacksonObjectMapperProvider;
+import jpa.controllers.AuthController;
 import jpa.controllers.ConcertController;
 import jpa.controllers.OpenApiAliasController;
 import jpa.controllers.SwaggerUiController;
@@ -35,6 +36,7 @@ public class TestApplication extends Application {
         final Set<Class<?>> clazzes = new HashSet<>();
 
         clazzes.add(OpenApiResource.class);
+        clazzes.add(AuthController.class);
         clazzes.add(UserController.class);
         clazzes.add(ConcertController.class);
         clazzes.add(OpenApiAliasController.class);
