@@ -105,6 +105,26 @@ public class AuthServiceImpl implements AuthService {
     }
 
     /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void logout(RefreshTokenRequestDto request) {
+        if (request == null) {
+            throw new BadRequestException("Request body is required");
+        }
+
+        String rawRefreshToken = normalizeRequired("refreshToken", request.refreshToken());
+        Instant now = Instant.now();
+        String tokenHash = accessTokenService.hashRefreshToken(rawRefreshToken);
+
+        // Idempotent logout: revoke when token is active; otherwise do nothing.
+        refreshTokenDao.findValidByHash(tokenHash, now).ifPresent(token -> {
+            token.setRevokedAt(now);
+            refreshTokenDao.update(token);
+        });
+    }
+
+    /**
      * Issues a new access token and refresh token for the given user.
      *
      * @param user token owner

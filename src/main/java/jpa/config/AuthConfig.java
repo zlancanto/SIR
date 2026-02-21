@@ -40,7 +40,7 @@ public final class AuthConfig {
 
     private static final long DEFAULT_ACCESS_TOKEN_TTL_SECONDS = 900L;
     private static final long DEFAULT_REFRESH_TOKEN_TTL_SECONDS = 2_592_000L;
-    private static final int MIN_SIGNING_KEY_LENGTH = 256;
+    private static final int MIN_SIGNING_KEY_LENGTH = 32;
 
     private AuthConfig() {}
 

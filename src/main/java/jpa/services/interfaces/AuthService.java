@@ -24,4 +24,14 @@ public interface AuthService {
      * @return newly issued token pair
      */
     TokenPairResponseDto refresh(RefreshTokenRequestDto request);
+
+    /**
+     * Revokes the provided refresh token to terminate the current session.
+     *
+     * <p>The operation is intended to be idempotent:
+     * if the token is already invalid, revoked or unknown, no error is raised.</p>
+     *
+     * @param request payload containing the refresh token to revoke
+     */
+    void logout(RefreshTokenRequestDto request);
 }

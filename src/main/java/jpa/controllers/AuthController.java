@@ -109,4 +109,34 @@ public class AuthController {
         TokenPairResponseDto response = authService.refresh(request);
         return Response.ok(response).build();
     }
+
+    /**
+     * Revokes the provided refresh token and closes the current session.
+     *
+     * @param request payload containing the refresh token to revoke
+     * @return HTTP 204 when logout is processed
+     */
+    @POST
+    @Path("/logout")
+    @Operation(summary = "Logout current session")
+    @RequestBody(
+            required = true,
+            description = "Refresh token payload to revoke",
+            content = @Content(schema = @Schema(implementation = RefreshTokenRequestDto.class))
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "204",
+                    description = "Logout processed (idempotent)"
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Invalid payload",
+                    content = @Content(schema = @Schema(implementation = ResponseExceptionDto.class))
+            )
+    })
+    public Response logout(RefreshTokenRequestDto request) {
+        authService.logout(request);
+        return Response.noContent().build();
+    }
 }
