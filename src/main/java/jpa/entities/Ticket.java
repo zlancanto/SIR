@@ -72,6 +72,24 @@ public class Ticket extends BaseEntity {
     }
 
     /**
+     * Returns whether this ticket is already sold.
+     *
+     * @return sold state
+     */
+    public Boolean getSold() {
+        return sold;
+    }
+
+    /**
+     * Sets sold state.
+     *
+     * @param sold sold state
+     */
+    public void setSold(Boolean sold) {
+        this.sold = sold;
+    }
+
+    /**
      * Returns the customer owning this ticket.
      *
      * @return linked customer, or {@code null} when the ticket is not sold

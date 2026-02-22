@@ -26,6 +26,8 @@ import jpa.services.interfaces.ConcertService;
 import java.util.List;
 import java.util.UUID;
 
+import static jpa.utils.Security.resolveAuthenticatedEmail;
+
 /**
  * REST endpoints for concert creation, validation and listing.
  */
@@ -158,7 +160,8 @@ public class ConcertController {
             @PathParam("concertId") UUID concertId,
             @Context SecurityContext securityContext
     ) {
-        String authenticatedAdminEmail = resolveAuthenticatedEmail(securityContext);
+        String msgException = "Authenticated admin is required";
+        String authenticatedAdminEmail = resolveAuthenticatedEmail(securityContext, msgException);
         ResponseConcertDetailsDto validated = concertService.validateConcert(concertId, authenticatedAdminEmail);
         return Response.ok(validated).build();
     }
@@ -223,18 +226,5 @@ public class ConcertController {
     public Response getPendingConcerts() {
         List<ResponseConcertDetailsDto> concerts = concertService.getPendingConcerts();
         return Response.ok(concerts).build();
-    }
-
-    private String resolveAuthenticatedEmail(SecurityContext securityContext) {
-        if (securityContext == null || securityContext.getUserPrincipal() == null) {
-            throw new ForbiddenException("Authenticated admin is required");
-        }
-
-        String principalName = securityContext.getUserPrincipal().getName();
-        if (principalName == null || principalName.isBlank()) {
-            throw new ForbiddenException("Authenticated admin is required");
-        }
-
-        return principalName.trim();
     }
 }

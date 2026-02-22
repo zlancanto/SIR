@@ -10,6 +10,7 @@ import jpa.controllers.AuthController;
 import jpa.controllers.ConcertController;
 import jpa.controllers.OpenApiAliasController;
 import jpa.controllers.SwaggerUiController;
+import jpa.controllers.TicketController;
 import jpa.controllers.UserController;
 import jpa.exceptionhandlers.*;
 import jpa.security.JwtAuthorizationFilter;
@@ -41,6 +42,7 @@ public class TestApplication extends Application {
         clazzes.add(AuthController.class);
         clazzes.add(UserController.class);
         clazzes.add(ConcertController.class);
+        clazzes.add(TicketController.class);
         clazzes.add(OpenApiAliasController.class);
         clazzes.add(SwaggerUiController.class);
         clazzes.add(JwtAuthorizationFilter.class);

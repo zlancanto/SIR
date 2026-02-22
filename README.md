@@ -23,9 +23,9 @@
 ### Points non completement accomplis (a traiter ensuite)
 
 1. Tous les controllers ne sont pas exposes dans l'application REST.
-`src/main/java/jpa/TestApplication.java` enregistre `AuthController`, `UserController`, `ConcertController`, `SwaggerUiController`, mais pas `AdminController`, `OrganizerController`, `PlaceController`, `TicketController`.
+`src/main/java/jpa/TestApplication.java` enregistre `AuthController`, `UserController`, `ConcertController`, `TicketController`, `SwaggerUiController`, mais pas `AdminController`, `OrganizerController`, `PlaceController`.
 2. Certains controllers sont des squelettes (pas d'endpoints metier/CRUD).
-`src/main/java/jpa/controllers/OrganizerController.java`, `src/main/java/jpa/controllers/PlaceController.java`, `src/main/java/jpa/controllers/TicketController.java`.
+`src/main/java/jpa/controllers/OrganizerController.java`, `src/main/java/jpa/controllers/PlaceController.java`.
 3. Il n'existe pas encore de controller dedie pour toutes les entites concretes (`Customer`, `RefreshToken`) si on interprete strictement "un controller par entite".
 
 ---
@@ -158,7 +158,7 @@ Dossier: `src/main/java/jpa/controllers/`
 4. `AdminController`
 5. `OrganizerController` (squelette)
 6. `PlaceController` (squelette)
-7. `TicketController` (squelette)
+7. `TicketController`
 8. `SwaggerUiController`
 9. `OpenApiAliasController`
 
@@ -171,9 +171,10 @@ Enregistres:
 1. `AuthController`
 2. `UserController`
 3. `ConcertController`
-4. `SwaggerUiController`
-5. `OpenApiAliasController`
-6. `OpenApiResource` (generation spec OpenAPI)
+4. `TicketController`
+5. `SwaggerUiController`
+6. `OpenApiAliasController`
+7. `OpenApiResource` (generation spec OpenAPI)
 
 Composants de securite enregistres:
 
@@ -218,6 +219,16 @@ Controller:
 Service:
 `src/main/java/jpa/services/impl/ConcertServiceImpl.java`
 
+#### Tickets
+
+1. `POST /tickets/purchase` (prive: `ROLE_CUSTOMER`)
+
+Controller:
+`src/main/java/jpa/controllers/TicketController.java`
+
+Service:
+`src/main/java/jpa/services/impl/TicketServiceImpl.java`
+
 ### Matrice d'acces public/prive (etat actuel implemente)
 
 Pour tous les endpoints prives, il faut fournir:
@@ -236,6 +247,7 @@ Pour tous les endpoints prives, il faut fournir:
 | POST | `/concerts/{concertId}/validate` | Prive (`@RolesAllowed`) | Role `ROLE_ADMIN` | `src/main/java/jpa/controllers/ConcertController.java` |
 | GET | `/concerts/public` | Public (`@PermitAll`) | Aucune | `src/main/java/jpa/controllers/ConcertController.java` |
 | GET | `/concerts/pending` | Prive (`@RolesAllowed`) | Role `ROLE_ADMIN` | `src/main/java/jpa/controllers/ConcertController.java` |
+| POST | `/tickets/purchase` | Prive (`@RolesAllowed`) | Role `ROLE_CUSTOMER` | `src/main/java/jpa/controllers/TicketController.java` |
 
 ### Securite JWT: implementation technique
 
@@ -261,6 +273,7 @@ Exemples:
 1. `CreateConcertRequestDto`, `ResponseConcertDetailsDto`
 2. `CreateUserRequestDto`, `CreateAdminRequestDto`, `ResponseUserDto`
 3. `LoginRequestDto`, `RefreshTokenRequestDto`, `TokenPairResponseDto`
+4. `PurchaseTicketsRequestDto`, `ResponseTicketDetailsDto`
 
 Dossiers:
 
@@ -268,6 +281,7 @@ Dossiers:
 2. `src/main/java/jpa/dto/user/`
 3. `src/main/java/jpa/dto/auth/`
 4. `src/main/java/jpa/dto/security/`
+5. `src/main/java/jpa/dto/ticket/`
 
 ### OpenAPI / Swagger
 
@@ -378,6 +392,15 @@ curl -X POST http://localhost:8081/concerts/<concert_uuid>/validate \
   -H "Content-Type: application/json"
 ```
 
+### Achat de tickets (customer)
+
+```bash
+curl -X POST http://localhost:8081/tickets/purchase \
+  -H "Authorization: Bearer <access_token_customer>" \
+  -H "Content-Type: application/json" \
+  -d "{\"concertId\":\"<concert_uuid>\",\"quantity\":2}"
+```
+
 ### Logout (session courante)
 
 ```bash
@@ -461,7 +484,7 @@ classDiagram
 ## Backlog conseille pour la suite (V2)
 
 1. Ajouter `CustomerController` et eventuellement `RefreshTokenController` dedie si exigence stricte "1 controller par entite".
-2. Rendre `AdminController`, `OrganizerController`, `PlaceController`, `TicketController` vraiment fonctionnels (endpoints CRUD + metier).
+2. Rendre `AdminController`, `OrganizerController`, `PlaceController` vraiment fonctionnels (endpoints CRUD + metier).
 3. Enregistrer ces controllers dans `TestApplication`.
 4. Etendre la politique d'autorisation (roles) aux futurs controllers quand ils seront exposes.
 5. Ajouter des tests d'integration REST couvrant aussi les cas `401`/`403`.
