@@ -33,7 +33,14 @@ public final class Instance {
     public static final PlaceService PLACE_SERVICE = new PlaceServiceImpl(PLACE_DAO);
     public static final TicketService TICKET_SERVICE = new TicketServiceImpl(TICKET_DAO);
     public static final UserRegistrationService USER_REGISTRATION_SERVICE = new UserRegistrationServiceImpl(USER_DAO);
-    public static final ConcertService CONCERT_SERVICE = new ConcertServiceImpl(CONCERT_DAO, ORGANIZER_DAO, PLACE_DAO, ADMIN_DAO);
+    public static final ConcertService CONCERT_SERVICE = new ConcertServiceImpl(
+            CONCERT_DAO,
+            ORGANIZER_DAO,
+            PLACE_DAO,
+            ADMIN_DAO,
+            USER_DAO,
+            TicketConfig.resolveMaxTicketBatchSize()
+    );
     public static final AuthService AUTH_SERVICE = new AuthServiceImpl(USER_DAO, REFRESH_TOKEN_DAO, ACCESS_TOKEN_SERVICE);
 
     private Instance() {

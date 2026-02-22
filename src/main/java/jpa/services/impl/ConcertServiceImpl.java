@@ -5,27 +5,29 @@ import jakarta.ws.rs.ClientErrorException;
 import jakarta.ws.rs.ForbiddenException;
 import jakarta.ws.rs.NotFoundException;
 import jakarta.ws.rs.core.Response;
-import jpa.config.AdminConfig;
 import jpa.dao.abstracts.AdminDao;
 import jpa.dao.abstracts.ConcertDao;
 import jpa.dao.abstracts.OrganizerDao;
 import jpa.dao.abstracts.PlaceDao;
+import jpa.dao.abstracts.UserDao;
 import jpa.dto.concert.CreateConcertRequestDto;
 import jpa.dto.concert.ResponseConcertDetailsDto;
-import jpa.dto.concert.ValidateConcertRequestDto;
 import jpa.entities.Admin;
 import jpa.entities.Concert;
 import jpa.entities.Organizer;
 import jpa.entities.Place;
+import jpa.entities.Ticket;
+import jpa.entities.User;
 import jpa.enums.ConcertStatus;
 import jpa.services.interfaces.ConcertService;
 
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
+import java.util.Locale;
 import java.util.UUID;
 
 import static jpa.utils.StringValidation.normalizeRequired;
@@ -50,6 +52,8 @@ public class ConcertServiceImpl implements ConcertService {
     private final OrganizerDao organizerDao;
     private final PlaceDao placeDao;
     private final AdminDao adminDao;
+    private final UserDao userDao;
+    private final int maxTicketBatchSize;
 
     /**
      * Creates a service with DAO dependencies required by concert workflows.
@@ -58,17 +62,23 @@ public class ConcertServiceImpl implements ConcertService {
      * @param organizerDao DAO used to resolve organizers
      * @param placeDao DAO used to resolve places
      * @param adminDao DAO used to resolve admins
+     * @param userDao DAO used to resolve authenticated users
+     * @param maxTicketBatchSize maximum number of tickets created at concert creation
      */
     public ConcertServiceImpl(
             ConcertDao concertDao,
             OrganizerDao organizerDao,
             PlaceDao placeDao,
-            AdminDao adminDao
+            AdminDao adminDao,
+            UserDao userDao,
+            int maxTicketBatchSize
     ) {
         this.concertDao = concertDao;
         this.organizerDao = organizerDao;
         this.placeDao = placeDao;
         this.adminDao = adminDao;
+        this.userDao = userDao;
+        this.maxTicketBatchSize = maxTicketBatchSize;
     }
 
     /**
@@ -94,6 +104,24 @@ public class ConcertServiceImpl implements ConcertService {
         if (request.date() == null) {
             throw new BadRequestException("date is required");
         }
+        if (request.ticketUnitPrice() == null) {
+            throw new BadRequestException("ticketUnitPrice is required");
+        }
+        if (request.ticketQuantity() == null) {
+            throw new BadRequestException("ticketQuantity is required");
+        }
+        if (request.ticketQuantity() <= 0) {
+            throw new BadRequestException("ticketQuantity must be greater than 0");
+        }
+        if (request.ticketQuantity() > maxTicketBatchSize) {
+            throw new BadRequestException("ticketQuantity must be <= " + maxTicketBatchSize);
+        }
+        if (request.ticketUnitPrice().compareTo(BigDecimal.ZERO) <= 0) {
+            throw new BadRequestException("ticketUnitPrice must be greater than 0");
+        }
+        if (request.ticketUnitPrice().scale() > 2) {
+            throw new BadRequestException("ticketUnitPrice must have at most 2 decimal places");
+        }
 
         if (request.date().isBefore(Instant.now())) {
             throw new BadRequestException("date must be in the future");
@@ -110,6 +138,9 @@ public class ConcertServiceImpl implements ConcertService {
         Place place = placeDao.findOne(request.placeId());
         if (place == null) {
             throw new NotFoundException("Place not found");
+        }
+        if (place.getCapacity() != null && request.ticketQuantity() > place.getCapacity()) {
+            throw new BadRequestException("ticketQuantity must be <= place capacity");
         }
 
         Instant bookingWindowStart = request.date().minus(PLACE_BOOKING_DURATION);
@@ -136,6 +167,7 @@ public class ConcertServiceImpl implements ConcertService {
         concert.setOrganizer(organizer);
         concert.setPlace(place);
         concert.setStatus(ConcertStatus.PENDING_VALIDATION);
+        concert.setTickets(createInitialTickets(concert, request.ticketQuantity(), request.ticketUnitPrice()));
 
         concertDao.save(concert);
 
@@ -146,29 +178,20 @@ public class ConcertServiceImpl implements ConcertService {
      * Validates a pending concert and publishes it.
      *
      * @param concertId identifier of the target concert
-     * @param request validation payload containing admin identifier
-     * @param adminActionKey privileged header value required for admin actions
+     * @param authenticatedAdminEmail authenticated admin email extracted from JWT context
      * @return updated concert mapped to response DTO
      */
     @Override
     public ResponseConcertDetailsDto validateConcert(
             UUID concertId,
-            ValidateConcertRequestDto request,
-            String adminActionKey
+            String authenticatedAdminEmail
     ) {
         if (concertId == null) {
             throw new BadRequestException("concertId is required");
         }
 
-        if (request == null) {
-            throw new BadRequestException("Request body is required");
-        }
-
-        if (request.adminId() == null) {
-            throw new BadRequestException("adminId is required");
-        }
-
-        validateAdminActionKey(adminActionKey);
+        String email = normalizeRequired("authenticatedAdminEmail", authenticatedAdminEmail)
+                .toLowerCase(Locale.ROOT);
 
         Concert concert = concertDao.findOne(concertId);
         if (concert == null) {
@@ -182,7 +205,13 @@ public class ConcertServiceImpl implements ConcertService {
             );
         }
 
-        Admin admin = adminDao.findOne(request.adminId());
+        User authenticatedUser = userDao.findByEmail(email)
+                .orElseThrow(() -> new NotFoundException("Admin not found"));
+        if (!(authenticatedUser instanceof Admin authenticatedAdmin)) {
+            throw new ForbiddenException("User is not an admin");
+        }
+
+        Admin admin = adminDao.findOne(authenticatedAdmin.getId());
         if (admin == null) {
             throw new NotFoundException("Admin not found");
         }
@@ -210,12 +239,10 @@ public class ConcertServiceImpl implements ConcertService {
     /**
      * Returns concerts waiting for validation.
      *
-     * @param adminActionKey privileged header value required for admin actions
      * @return pending concerts
      */
     @Override
-    public List<ResponseConcertDetailsDto> getPendingConcerts(String adminActionKey) {
-        validateAdminActionKey(adminActionKey);
+    public List<ResponseConcertDetailsDto> getPendingConcerts() {
         return concertDao.findByStatus(ConcertStatus.PENDING_VALIDATION)
                 .stream()
                 .map(this::toResponse)
@@ -242,45 +269,22 @@ public class ConcertServiceImpl implements ConcertService {
         );
     }
 
-    private void validateAdminActionKey(String providedKey) {
-        String expectedKey = resolveAdminActionKey()
-                .orElseThrow(() -> new ForbiddenException("Admin action is disabled"));
+    private List<Ticket> createInitialTickets(Concert concert, int quantity, BigDecimal unitPrice) {
+        BigDecimal normalizedPrice = unitPrice.setScale(2, RoundingMode.HALF_UP);
+        List<Ticket> tickets = new ArrayList<>(quantity);
 
-        if (providedKey == null || providedKey.isBlank()) {
-            throw new ForbiddenException("Missing admin action key");
+        for (int i = 0; i < quantity; i++) {
+            Ticket ticket = new Ticket();
+            ticket.setConcert(concert);
+            ticket.setPrice(normalizedPrice);
+            ticket.setBarcode(generateBarcode());
+            tickets.add(ticket);
         }
 
-        boolean valid = MessageDigest.isEqual(
-                providedKey.trim().getBytes(StandardCharsets.UTF_8),
-                expectedKey.getBytes(StandardCharsets.UTF_8)
-        );
-
-        if (!valid) {
-            throw new ForbiddenException("Invalid admin action key");
-        }
+        return tickets;
     }
 
-    private Optional<String> resolveAdminActionKey() {
-        String actionFromProperty = System.getProperty(AdminConfig.ADMIN_ACTION_KEY_PROPERTY);
-        if (actionFromProperty != null && !actionFromProperty.isBlank()) {
-            return Optional.of(actionFromProperty.trim());
-        }
-
-        String actionFromEnv = System.getenv(AdminConfig.ADMIN_ACTION_KEY_ENV);
-        if (actionFromEnv != null && !actionFromEnv.isBlank()) {
-            return Optional.of(actionFromEnv.trim());
-        }
-
-        String registrationFromProperty = System.getProperty(AdminConfig.ADMIN_REGISTRATION_KEY_PROPERTY);
-        if (registrationFromProperty != null && !registrationFromProperty.isBlank()) {
-            return Optional.of(registrationFromProperty.trim());
-        }
-
-        String registrationFromEnv = System.getenv(AdminConfig.ADMIN_REGISTRATION_KEY_ENV);
-        if (registrationFromEnv != null && !registrationFromEnv.isBlank()) {
-            return Optional.of(registrationFromEnv.trim());
-        }
-
-        return Optional.empty();
+    private String generateBarcode() {
+        return UUID.randomUUID().toString().replace("-", "").toUpperCase(Locale.ROOT);
     }
 }

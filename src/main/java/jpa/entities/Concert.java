@@ -22,6 +22,9 @@ public class Concert extends BaseEntity {
 
     private String artist;
 
+    @Column(length = 1024)
+    private String description;
+
     @Column(nullable = false)
     private Instant date;
 
@@ -96,6 +99,24 @@ public class Concert extends BaseEntity {
      */
     public void setArtist(String artist) {
         this.artist = artist;
+    }
+
+    /**
+     * Returns the concert description.
+     *
+     * @return concert description, may be {@code null}
+     */
+    public String getDescription() {
+        return description;
+    }
+
+    /**
+     * Sets the concert description.
+     *
+     * @param description concert description, may be {@code null}
+     */
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     /**

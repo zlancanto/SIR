@@ -13,13 +13,13 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.security.PermitAll;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.ws.rs.*;
+import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-import jpa.config.AdminConfig;
+import jakarta.ws.rs.core.SecurityContext;
 import jpa.config.Instance;
 import jpa.dto.concert.CreateConcertRequestDto;
 import jpa.dto.concert.ResponseConcertDetailsDto;
-import jpa.dto.concert.ValidateConcertRequestDto;
 import jpa.dto.exceptions.ResponseExceptionDto;
 import jpa.services.interfaces.ConcertService;
 
@@ -56,7 +56,8 @@ public class ConcertController {
     @Operation(
             summary = "Create a concert proposal",
             description = "Creates a concert in PENDING_VALIDATION status. "
-                    + "The place must exist and be available in the requested 3-hour booking window."
+                    + "The place must exist and be available in the requested 3-hour booking window. "
+                    + "Initial tickets are generated from ticketUnitPrice and ticketQuantity."
     )
     @RequestBody(
             required = true,
@@ -106,8 +107,6 @@ public class ConcertController {
      * Validates a pending concert.
      *
      * @param concertId concert identifier from path
-     * @param adminActionKey privileged key from header
-     * @param request payload containing admin identifier
      * @return HTTP 200 with updated concert details
      */
     @POST
@@ -115,12 +114,7 @@ public class ConcertController {
     @RolesAllowed("ROLE_ADMIN")
     @Operation(
             summary = "Validate a pending concert",
-            description = "Validates a PENDING_VALIDATION concert and publishes it."
-    )
-    @RequestBody(
-            required = true,
-            description = "Validation payload containing admin identifier",
-            content = @Content(schema = @Schema(implementation = ValidateConcertRequestDto.class))
+            description = "Validates a PENDING_VALIDATION concert and publishes it using the authenticated admin."
     )
     @ApiResponses(value = {
             @ApiResponse(
@@ -130,12 +124,12 @@ public class ConcertController {
             ),
             @ApiResponse(
                     responseCode = "400",
-                    description = "Invalid request payload",
+                    description = "Invalid request parameter",
                     content = @Content(schema = @Schema(implementation = ResponseExceptionDto.class))
             ),
             @ApiResponse(
                     responseCode = "403",
-                    description = "Missing or invalid admin action key",
+                    description = "User does not have admin privileges",
                     content = @Content(schema = @Schema(implementation = ResponseExceptionDto.class))
             ),
             @ApiResponse(
@@ -162,17 +156,10 @@ public class ConcertController {
                     schema = @Schema(type = "string", format = "uuid")
             )
             @PathParam("concertId") UUID concertId,
-            @Parameter(
-                    name = AdminConfig.ADMIN_ACTION_HEADER,
-                    in = ParameterIn.HEADER,
-                    required = true,
-                    description = "Privileged key required for moderation actions",
-                    schema = @Schema(type = "string")
-            )
-            @HeaderParam(AdminConfig.ADMIN_ACTION_HEADER) String adminActionKey,
-            ValidateConcertRequestDto request
+            @Context SecurityContext securityContext
     ) {
-        ResponseConcertDetailsDto validated = concertService.validateConcert(concertId, request, adminActionKey);
+        String authenticatedAdminEmail = resolveAuthenticatedEmail(securityContext);
+        ResponseConcertDetailsDto validated = concertService.validateConcert(concertId, authenticatedAdminEmail);
         return Response.ok(validated).build();
     }
 
@@ -205,7 +192,6 @@ public class ConcertController {
     /**
      * Lists concerts still waiting for validation.
      *
-     * @param adminActionKey privileged key from header
      * @return HTTP 200 with pending concerts
      */
     @GET
@@ -213,7 +199,7 @@ public class ConcertController {
     @RolesAllowed("ROLE_ADMIN")
     @Operation(
             summary = "List pending concerts",
-            description = "Returns concerts awaiting validation. Requires admin action key."
+            description = "Returns concerts awaiting validation for authenticated admins."
     )
     @ApiResponses(value = {
             @ApiResponse(
@@ -225,7 +211,7 @@ public class ConcertController {
             ),
             @ApiResponse(
                     responseCode = "403",
-                    description = "Missing or invalid admin action key",
+                    description = "User does not have admin privileges",
                     content = @Content(schema = @Schema(implementation = ResponseExceptionDto.class))
             ),
             @ApiResponse(
@@ -234,17 +220,21 @@ public class ConcertController {
                     content = @Content(schema = @Schema(implementation = ResponseExceptionDto.class))
             )
     })
-    public Response getPendingConcerts(
-            @Parameter(
-                    name = AdminConfig.ADMIN_ACTION_HEADER,
-                    in = ParameterIn.HEADER,
-                    required = true,
-                    description = "Privileged key required for moderation actions",
-                    schema = @Schema(type = "string")
-            )
-            @HeaderParam(AdminConfig.ADMIN_ACTION_HEADER) String adminActionKey
-    ) {
-        List<ResponseConcertDetailsDto> concerts = concertService.getPendingConcerts(adminActionKey);
+    public Response getPendingConcerts() {
+        List<ResponseConcertDetailsDto> concerts = concertService.getPendingConcerts();
         return Response.ok(concerts).build();
+    }
+
+    private String resolveAuthenticatedEmail(SecurityContext securityContext) {
+        if (securityContext == null || securityContext.getUserPrincipal() == null) {
+            throw new ForbiddenException("Authenticated admin is required");
+        }
+
+        String principalName = securityContext.getUserPrincipal().getName();
+        if (principalName == null || principalName.isBlank()) {
+            throw new ForbiddenException("Authenticated admin is required");
+        }
+
+        return principalName.trim();
     }
 }

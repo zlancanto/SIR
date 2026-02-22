@@ -19,4 +19,22 @@ public class StringValidation {
         }
         return value.trim();
     }
+
+    /**
+     * Returns the first non-blank value among ordered candidates.
+     *
+     * @param values ordered candidates
+     * @return first non-blank value, or {@code null} if none is set
+     */
+    public static String firstNonBlank(String... values) {
+        if (values == null) {
+            return null;
+        }
+        for (String value : values) {
+            if (value != null && !value.isBlank()) {
+                return value;
+            }
+        }
+        return null;
+    }
 }

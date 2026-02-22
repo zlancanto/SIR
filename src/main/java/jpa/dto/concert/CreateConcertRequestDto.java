@@ -2,6 +2,7 @@ package jpa.dto.concert;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.UUID;
 
@@ -13,6 +14,8 @@ import java.util.UUID;
  * @param date scheduled date and time of the concert
  * @param organizerId identifier of the organizer creating the concert
  * @param placeId identifier of the venue where the concert will be held
+ * @param ticketUnitPrice unit price applied to each generated ticket
+ * @param ticketQuantity number of tickets generated when the concert is created
  */
 @Schema(name = "CreateConcertRequest")
 public record CreateConcertRequestDto(
@@ -48,6 +51,18 @@ public record CreateConcertRequestDto(
                 format = "uuid",
                 requiredMode = Schema.RequiredMode.REQUIRED
         )
-        UUID placeId
+        UUID placeId,
+        @Schema(
+                description = "Unit ticket price",
+                example = "49.90",
+                requiredMode = Schema.RequiredMode.REQUIRED
+        )
+        BigDecimal ticketUnitPrice,
+        @Schema(
+                description = "Number of tickets to generate",
+                example = "500",
+                requiredMode = Schema.RequiredMode.REQUIRED
+        )
+        Integer ticketQuantity
 ) {
 }

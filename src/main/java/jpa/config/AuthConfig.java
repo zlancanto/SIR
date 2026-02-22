@@ -1,5 +1,7 @@
 package jpa.config;
 
+import static jpa.utils.StringValidation.firstNonBlank;
+
 /**
  * Resolves authentication-related runtime configuration.
  *
@@ -129,23 +131,5 @@ public final class AuthConfig {
         } catch (NumberFormatException ex) {
             throw new IllegalStateException(label + " must be a valid number", ex);
         }
-    }
-
-    /**
-     * Returns the first non-blank value among ordered candidates.
-     *
-     * @param values ordered candidates
-     * @return first non-blank value, or {@code null} if none is set
-     */
-    private static String firstNonBlank(String... values) {
-        if (values == null) {
-            return null;
-        }
-        for (String value : values) {
-            if (value != null && !value.isBlank()) {
-                return value;
-            }
-        }
-        return null;
     }
 }

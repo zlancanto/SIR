@@ -18,5 +18,4 @@ public record AccessTokenClaimsDto(
         String role,
         Instant issuedAt,
         Instant expiresAt
-) {
-}
+) {}

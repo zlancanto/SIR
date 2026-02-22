@@ -2,7 +2,6 @@ package jpa.services.interfaces;
 
 import jpa.dto.concert.CreateConcertRequestDto;
 import jpa.dto.concert.ResponseConcertDetailsDto;
-import jpa.dto.concert.ValidateConcertRequestDto;
 
 import java.util.List;
 import java.util.UUID;
@@ -27,11 +26,10 @@ public interface ConcertService {
      * Validates a pending concert and publishes it.
      *
      * @param concertId identifier of the concert to validate
-     * @param request payload containing the validating admin identifier
-     * @param adminActionKey privileged key required for admin actions
+     * @param authenticatedAdminEmail authenticated admin email extracted from JWT context
      * @return updated concert after status transition to {@code PUBLISHED}
      */
-    ResponseConcertDetailsDto validateConcert(UUID concertId, ValidateConcertRequestDto request, String adminActionKey);
+    ResponseConcertDetailsDto validateConcert(UUID concertId, String authenticatedAdminEmail);
 
     /**
      * Lists concerts visible to public users.
@@ -43,8 +41,7 @@ public interface ConcertService {
     /**
      * Lists concerts awaiting admin validation.
      *
-     * @param adminActionKey privileged key required for admin actions
      * @return concerts with status {@code PENDING_VALIDATION}
      */
-    List<ResponseConcertDetailsDto> getPendingConcerts(String adminActionKey);
+    List<ResponseConcertDetailsDto> getPendingConcerts();
 }

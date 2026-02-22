@@ -55,6 +55,8 @@ Le backend gere principalement:
 `src/main/java/jpa/dao/impl/ConcertDaoImpl.java`
 4. Le refresh token est rotate a chaque refresh (ancien token revoke, nouveau token genere).
 `src/main/java/jpa/services/impl/AuthServiceImpl.java`
+5. La creation de concert genere automatiquement des tickets selon `ticketUnitPrice` et `ticketQuantity`.
+`src/main/java/jpa/services/impl/ConcertServiceImpl.java`
 
 ---
 
@@ -206,9 +208,9 @@ Service:
 #### Concerts
 
 1. `POST /concerts/create` (prive: `ROLE_ORGANIZER`)
-2. `POST /concerts/{concertId}/validate` (prive: `ROLE_ADMIN` + header `X-Admin-Action-Key`)
+2. `POST /concerts/{concertId}/validate` (prive: `ROLE_ADMIN`)
 3. `GET /concerts/public` (public)
-4. `GET /concerts/pending` (prive: `ROLE_ADMIN` + header `X-Admin-Action-Key`)
+4. `GET /concerts/pending` (prive: `ROLE_ADMIN`)
 
 Controller:
 `src/main/java/jpa/controllers/ConcertController.java`
@@ -231,9 +233,9 @@ Pour tous les endpoints prives, il faut fournir:
 | POST | `/users/register` | Public (`@PermitAll`) | Aucune | `src/main/java/jpa/controllers/UserController.java` |
 | POST | `/users/register/admin` | Prive (`@RolesAllowed`) | Role `ROLE_ADMIN` + `X-Admin-Registration-Key` | `src/main/java/jpa/controllers/UserController.java` |
 | POST | `/concerts/create` | Prive (`@RolesAllowed`) | Role `ROLE_ORGANIZER` | `src/main/java/jpa/controllers/ConcertController.java` |
-| POST | `/concerts/{concertId}/validate` | Prive (`@RolesAllowed`) | Role `ROLE_ADMIN` + `X-Admin-Action-Key` | `src/main/java/jpa/controllers/ConcertController.java` |
+| POST | `/concerts/{concertId}/validate` | Prive (`@RolesAllowed`) | Role `ROLE_ADMIN` | `src/main/java/jpa/controllers/ConcertController.java` |
 | GET | `/concerts/public` | Public (`@PermitAll`) | Aucune | `src/main/java/jpa/controllers/ConcertController.java` |
-| GET | `/concerts/pending` | Prive (`@RolesAllowed`) | Role `ROLE_ADMIN` + `X-Admin-Action-Key` | `src/main/java/jpa/controllers/ConcertController.java` |
+| GET | `/concerts/pending` | Prive (`@RolesAllowed`) | Role `ROLE_ADMIN` | `src/main/java/jpa/controllers/ConcertController.java` |
 
 ### Securite JWT: implementation technique
 
@@ -256,7 +258,7 @@ Points techniques:
 
 Exemples:
 
-1. `CreateConcertRequestDto`, `ValidateConcertRequestDto`, `ResponseConcertDetailsDto`
+1. `CreateConcertRequestDto`, `ResponseConcertDetailsDto`
 2. `CreateUserRequestDto`, `CreateAdminRequestDto`, `ResponseUserDto`
 3. `LoginRequestDto`, `RefreshTokenRequestDto`, `TokenPairResponseDto`
 
@@ -296,10 +298,10 @@ Fichier exemple: `.env`
 Variables:
 
 1. `APP_ADMIN_REGISTRATION_KEY`
-2. `APP_ADMIN_ACTION_KEY`
-3. `APP_AUTH_JWT_SIGNING_KEY`
-4. `APP_AUTH_ACCESS_TOKEN_TTL_SECONDS`
-5. `APP_AUTH_REFRESH_TOKEN_TTL_SECONDS`
+2. `APP_AUTH_JWT_SIGNING_KEY`
+3. `APP_AUTH_ACCESS_TOKEN_TTL_SECONDS`
+4. `APP_AUTH_REFRESH_TOKEN_TTL_SECONDS`
+5. `APP_TICKET_MAX_BATCH_SIZE`
 
 ### Lancer la base HSQLDB
 
@@ -365,7 +367,7 @@ curl -X POST http://localhost:8081/auth/refresh \
 curl -X POST http://localhost:8081/concerts/create \
   -H "Authorization: Bearer <access_token_organizer>" \
   -H "Content-Type: application/json" \
-  -d "{\"title\":\"Live Rennes\",\"artist\":\"Band X\",\"date\":\"2026-06-15T20:00:00Z\",\"organizerId\":\"<uuid>\",\"placeId\":\"<uuid>\"}"
+  -d "{\"title\":\"Live Rennes\",\"artist\":\"Band X\",\"date\":\"2026-06-15T20:00:00Z\",\"organizerId\":\"<uuid>\",\"placeId\":\"<uuid>\",\"ticketUnitPrice\":49.90,\"ticketQuantity\":500}"
 ```
 
 ### Validation concert (admin)
@@ -373,9 +375,7 @@ curl -X POST http://localhost:8081/concerts/create \
 ```bash
 curl -X POST http://localhost:8081/concerts/<concert_uuid>/validate \
   -H "Authorization: Bearer <access_token_admin>" \
-  -H "Content-Type: application/json" \
-  -H "X-Admin-Action-Key: <admin_action_key>" \
-  -d "{\"adminId\":\"<admin_uuid>\"}"
+  -H "Content-Type: application/json"
 ```
 
 ### Logout (session courante)
