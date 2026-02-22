@@ -13,7 +13,7 @@ import jpa.entities.Organizer;
 import jpa.entities.RefreshToken;
 import jpa.entities.User;
 import jpa.enums.Roles;
-import jpa.security.AccessTokenService;
+import jpa.security.interfaces.AccessTokenService;
 import jpa.services.interfaces.AuthService;
 
 import java.time.Instant;

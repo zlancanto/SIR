@@ -2,8 +2,8 @@ package jpa.config;
 
 import jpa.dao.abstracts.*;
 import jpa.dao.impl.*;
-import jpa.security.AccessTokenService;
-import jpa.security.AccessTokenServiceImpl;
+import jpa.security.impl.AccessTokenServiceImpl;
+import jpa.security.interfaces.AccessTokenService;
 import jpa.services.impl.*;
 import jpa.services.interfaces.*;
 

@@ -16,7 +16,7 @@
 | Au moins une DAO avec methodes metier (pas juste CRUD) | Accompli | `src/main/java/jpa/dao/abstracts/ConcertDao.java`, `src/main/java/jpa/dao/impl/ConcertDaoImpl.java` | Methode metier `existsPlaceBookingConflict(...)`. |
 | Un controller par entite | Partiellement accompli | `src/main/java/jpa/controllers/` | Controllers existants pour `User`, `Concert`, `Admin`, `Organizer`, `Place`, `Ticket`, `Auth`. Manquent `CustomerController` et `RefreshTokenController` dedies. |
 | OpenAPI complete sur au moins un controller | Accompli | `src/main/java/jpa/controllers/ConcertController.java`, `src/main/java/jpa/controllers/UserController.java`, `src/main/java/jpa/controllers/AuthController.java` | Annotations `@Operation`, `@ApiResponses`, schemas DTO. |
-| Au moins un controller avec endpoints metier | Accompli | `src/main/java/jpa/controllers/ConcertController.java`, `src/main/java/jpa/controllers/AuthController.java` | Validation de concert, filtrage pending/public, login/refresh. |
+| Au moins un controller avec endpoints metier | Accompli | `src/main/java/jpa/controllers/ConcertController.java`, `src/main/java/jpa/controllers/AuthController.java` | Validation de concert, filtrage pending/public, login/refresh/logout. |
 | Au moins un controller utilisant un DTO | Accompli | `src/main/java/jpa/controllers/UserController.java`, `src/main/java/jpa/controllers/ConcertController.java`, `src/main/java/jpa/controllers/AuthController.java` | DTO requests/responses utilises partout sur ces APIs. |
 | Documentation explicite du modele, diagramme, endpoints | Accompli avec ce README | `README.md` | Cette documentation couvre les points demandes. |
 
@@ -173,12 +173,18 @@ Enregistres:
 5. `OpenApiAliasController`
 6. `OpenApiResource` (generation spec OpenAPI)
 
+Composants de securite enregistres:
+
+1. `JwtAuthorizationFilter` (authentification Bearer JWT)
+2. `RoleBasedSecurityFeature` (prise en charge `@RolesAllowed` / `@PermitAll`)
+
 ### Endpoints metier deja disponibles
 
 #### Auth
 
-1. `POST /auth/login`
-2. `POST /auth/refresh`
+1. `POST /auth/login` (public)
+2. `POST /auth/refresh` (public)
+3. `POST /auth/logout` (prive: `ROLE_ADMIN`, `ROLE_ORGANIZER`, `ROLE_CUSTOMER`)
 
 Controller:
 `src/main/java/jpa/controllers/AuthController.java`
@@ -188,8 +194,8 @@ Service:
 
 #### Users
 
-1. `POST /users/register`
-2. `POST /users/register/admin` (header `X-Admin-Registration-Key`)
+1. `POST /users/register` (public)
+2. `POST /users/register/admin` (prive: `ROLE_ADMIN` + header `X-Admin-Registration-Key`)
 
 Controller:
 `src/main/java/jpa/controllers/UserController.java`
@@ -199,16 +205,52 @@ Service:
 
 #### Concerts
 
-1. `POST /concerts/create`
-2. `POST /concerts/{concertId}/validate` (header `X-Admin-Action-Key`)
-3. `GET /concerts/public`
-4. `GET /concerts/pending` (header `X-Admin-Action-Key`)
+1. `POST /concerts/create` (prive: `ROLE_ORGANIZER`)
+2. `POST /concerts/{concertId}/validate` (prive: `ROLE_ADMIN` + header `X-Admin-Action-Key`)
+3. `GET /concerts/public` (public)
+4. `GET /concerts/pending` (prive: `ROLE_ADMIN` + header `X-Admin-Action-Key`)
 
 Controller:
 `src/main/java/jpa/controllers/ConcertController.java`
 
 Service:
 `src/main/java/jpa/services/impl/ConcertServiceImpl.java`
+
+### Matrice d'acces public/prive (etat actuel implemente)
+
+Pour tous les endpoints prives, il faut fournir:
+
+1. `Authorization: Bearer <access_token>`
+2. un token non expire et signe avec la cle JWT backend
+
+| Methode | Endpoint | Acces | Conditions supplementaires | Fichier |
+|---|---|---|---|---|
+| POST | `/auth/login` | Public (`@PermitAll`) | Aucune | `src/main/java/jpa/controllers/AuthController.java` |
+| POST | `/auth/refresh` | Public (`@PermitAll`) | Aucune | `src/main/java/jpa/controllers/AuthController.java` |
+| POST | `/auth/logout` | Prive (`@RolesAllowed`) | Role: `ROLE_ADMIN` ou `ROLE_ORGANIZER` ou `ROLE_CUSTOMER` | `src/main/java/jpa/controllers/AuthController.java` |
+| POST | `/users/register` | Public (`@PermitAll`) | Aucune | `src/main/java/jpa/controllers/UserController.java` |
+| POST | `/users/register/admin` | Prive (`@RolesAllowed`) | Role `ROLE_ADMIN` + `X-Admin-Registration-Key` | `src/main/java/jpa/controllers/UserController.java` |
+| POST | `/concerts/create` | Prive (`@RolesAllowed`) | Role `ROLE_ORGANIZER` | `src/main/java/jpa/controllers/ConcertController.java` |
+| POST | `/concerts/{concertId}/validate` | Prive (`@RolesAllowed`) | Role `ROLE_ADMIN` + `X-Admin-Action-Key` | `src/main/java/jpa/controllers/ConcertController.java` |
+| GET | `/concerts/public` | Public (`@PermitAll`) | Aucune | `src/main/java/jpa/controllers/ConcertController.java` |
+| GET | `/concerts/pending` | Prive (`@RolesAllowed`) | Role `ROLE_ADMIN` + `X-Admin-Action-Key` | `src/main/java/jpa/controllers/ConcertController.java` |
+
+### Securite JWT: implementation technique
+
+Fichiers principaux:
+
+1. DTO claims: `src/main/java/jpa/dto/security/AccessTokenClaimsDto.java`
+2. Interface token: `src/main/java/jpa/security/interfaces/AccessTokenService.java`
+3. Implementation token: `src/main/java/jpa/security/impl/AccessTokenServiceImpl.java`
+4. Filtre d'autorisation: `src/main/java/jpa/security/JwtAuthorizationFilter.java`
+5. Enregistrement du filtre/feature RESTEasy: `src/main/java/jpa/TestApplication.java`
+
+Points techniques:
+
+1. Le JWT access token est signe en `HS256`.
+2. Le filtre lit `Authorization: Bearer ...`, verifie signature + claims (`iss`, `sub`, `email`, `role`, `iat`, `exp`).
+3. Le `SecurityContext` JAX-RS est alimente pour que `@RolesAllowed` fonctionne sur les endpoints.
+4. Les endpoints publics restent accessibles sans token (`@PermitAll`).
 
 ### Utilisation de DTO (consigne)
 
@@ -223,6 +265,7 @@ Dossiers:
 1. `src/main/java/jpa/dto/concert/`
 2. `src/main/java/jpa/dto/user/`
 3. `src/main/java/jpa/dto/auth/`
+4. `src/main/java/jpa/dto/security/`
 
 ### OpenAPI / Swagger
 
@@ -320,6 +363,7 @@ curl -X POST http://localhost:8081/auth/refresh \
 
 ```bash
 curl -X POST http://localhost:8081/concerts/create \
+  -H "Authorization: Bearer <access_token_organizer>" \
   -H "Content-Type: application/json" \
   -d "{\"title\":\"Live Rennes\",\"artist\":\"Band X\",\"date\":\"2026-06-15T20:00:00Z\",\"organizerId\":\"<uuid>\",\"placeId\":\"<uuid>\"}"
 ```
@@ -328,9 +372,19 @@ curl -X POST http://localhost:8081/concerts/create \
 
 ```bash
 curl -X POST http://localhost:8081/concerts/<concert_uuid>/validate \
+  -H "Authorization: Bearer <access_token_admin>" \
   -H "Content-Type: application/json" \
   -H "X-Admin-Action-Key: <admin_action_key>" \
   -d "{\"adminId\":\"<admin_uuid>\"}"
+```
+
+### Logout (session courante)
+
+```bash
+curl -X POST http://localhost:8081/auth/logout \
+  -H "Authorization: Bearer <access_token>" \
+  -H "Content-Type: application/json" \
+  -d "{\"refreshToken\":\"<refresh_token>\"}"
 ```
 
 ---
@@ -409,5 +463,5 @@ classDiagram
 1. Ajouter `CustomerController` et eventuellement `RefreshTokenController` dedie si exigence stricte "1 controller par entite".
 2. Rendre `AdminController`, `OrganizerController`, `PlaceController`, `TicketController` vraiment fonctionnels (endpoints CRUD + metier).
 3. Enregistrer ces controllers dans `TestApplication`.
-4. Ajouter une couche d'autorisation JWT sur endpoints metier sensibles (pas seulement les cles d'admin).
-5. Ajouter des tests d'integration REST pour valider les flux complets.
+4. Etendre la politique d'autorisation (roles) aux futurs controllers quand ils seront exposes.
+5. Ajouter des tests d'integration REST couvrant aussi les cas `401`/`403`.

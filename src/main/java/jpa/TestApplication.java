@@ -12,6 +12,8 @@ import jpa.controllers.OpenApiAliasController;
 import jpa.controllers.SwaggerUiController;
 import jpa.controllers.UserController;
 import jpa.exceptionhandlers.*;
+import jpa.security.JwtAuthorizationFilter;
+import org.jboss.resteasy.plugins.interceptors.RoleBasedSecurityFeature;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -41,6 +43,8 @@ public class TestApplication extends Application {
         clazzes.add(ConcertController.class);
         clazzes.add(OpenApiAliasController.class);
         clazzes.add(SwaggerUiController.class);
+        clazzes.add(JwtAuthorizationFilter.class);
+        clazzes.add(RoleBasedSecurityFeature.class);
 
         clazzes.add(JacksonObjectMapperProvider.class);
 

@@ -10,6 +10,8 @@ import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.annotation.security.PermitAll;
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
@@ -50,6 +52,7 @@ public class ConcertController {
      */
     @POST
     @Path("/create")
+    @RolesAllowed("ROLE_ORGANIZER")
     @Operation(
             summary = "Create a concert proposal",
             description = "Creates a concert in PENDING_VALIDATION status. "
@@ -80,6 +83,16 @@ public class ConcertController {
                     responseCode = "409",
                     description = "Requested place is already booked for this time slot",
                     content = @Content(schema = @Schema(implementation = ResponseExceptionDto.class))
+            ),
+            @ApiResponse(
+                    responseCode = "401",
+                    description = "Missing or invalid bearer access token",
+                    content = @Content(schema = @Schema(implementation = ResponseExceptionDto.class))
+            ),
+            @ApiResponse(
+                    responseCode = "403",
+                    description = "User does not have organizer privileges",
+                    content = @Content(schema = @Schema(implementation = ResponseExceptionDto.class))
             )
     })
     public Response create(CreateConcertRequestDto request) {
@@ -99,6 +112,7 @@ public class ConcertController {
      */
     @POST
     @Path("/{concertId}/validate")
+    @RolesAllowed("ROLE_ADMIN")
     @Operation(
             summary = "Validate a pending concert",
             description = "Validates a PENDING_VALIDATION concert and publishes it."
@@ -133,6 +147,11 @@ public class ConcertController {
                     responseCode = "409",
                     description = "Concert is not pending validation",
                     content = @Content(schema = @Schema(implementation = ResponseExceptionDto.class))
+            ),
+            @ApiResponse(
+                    responseCode = "401",
+                    description = "Missing or invalid bearer access token",
+                    content = @Content(schema = @Schema(implementation = ResponseExceptionDto.class))
             )
     })
     public Response validate(
@@ -164,6 +183,7 @@ public class ConcertController {
      */
     @GET
     @Path("/public")
+    @PermitAll
     @Operation(
             summary = "List published concerts",
             description = "Returns concerts currently visible to public users."
@@ -190,6 +210,7 @@ public class ConcertController {
      */
     @GET
     @Path("/pending")
+    @RolesAllowed("ROLE_ADMIN")
     @Operation(
             summary = "List pending concerts",
             description = "Returns concerts awaiting validation. Requires admin action key."
@@ -205,6 +226,11 @@ public class ConcertController {
             @ApiResponse(
                     responseCode = "403",
                     description = "Missing or invalid admin action key",
+                    content = @Content(schema = @Schema(implementation = ResponseExceptionDto.class))
+            ),
+            @ApiResponse(
+                    responseCode = "401",
+                    description = "Missing or invalid bearer access token",
                     content = @Content(schema = @Schema(implementation = ResponseExceptionDto.class))
             )
     })

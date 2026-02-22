@@ -7,6 +7,8 @@ import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.annotation.security.PermitAll;
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
@@ -46,6 +48,7 @@ public class AuthController {
      */
     @POST
     @Path("/login")
+    @PermitAll
     @Operation(summary = "Login with email and password")
     @RequestBody(
             required = true,
@@ -82,6 +85,7 @@ public class AuthController {
      */
     @POST
     @Path("/refresh")
+    @PermitAll
     @Operation(summary = "Refresh and rotate token pair")
     @RequestBody(
             required = true,
@@ -118,6 +122,7 @@ public class AuthController {
      */
     @POST
     @Path("/logout")
+    @RolesAllowed({"ROLE_ADMIN", "ROLE_ORGANIZER", "ROLE_CUSTOMER"})
     @Operation(summary = "Logout current session")
     @RequestBody(
             required = true,
@@ -132,6 +137,11 @@ public class AuthController {
             @ApiResponse(
                     responseCode = "400",
                     description = "Invalid payload",
+                    content = @Content(schema = @Schema(implementation = ResponseExceptionDto.class))
+            ),
+            @ApiResponse(
+                    responseCode = "401",
+                    description = "Missing or invalid bearer access token",
                     content = @Content(schema = @Schema(implementation = ResponseExceptionDto.class))
             )
     })

@@ -1,11 +1,12 @@
-package jpa.security;
+package jpa.security.interfaces;
 
+import jpa.dto.security.AccessTokenClaimsDto;
 import jpa.entities.User;
 
 import java.time.Instant;
 
 /**
- * Contract for issuing access tokens and handling refresh-token primitives.
+ * Defines JWT and refresh-token primitives used by authentication components.
  */
 public interface AccessTokenService {
 
@@ -19,6 +20,14 @@ public interface AccessTokenService {
      * @return compact JWT string
      */
     String createAccessToken(User user, String role, Instant issuedAt, Instant expiresAt);
+
+    /**
+     * Verifies a JWT access token signature and required claims.
+     *
+     * @param rawToken compact JWT provided by the client
+     * @return validated token claims
+     */
+    AccessTokenClaimsDto verifyAccessToken(String rawToken);
 
     /**
      * Generates a cryptographically random opaque refresh token.

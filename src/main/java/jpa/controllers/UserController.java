@@ -9,6 +9,8 @@ import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.annotation.security.PermitAll;
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
@@ -47,6 +49,7 @@ public class UserController {
      */
     @POST
     @Path("/register")
+    @PermitAll
     @Operation(
             summary = "Register a customer or organizer",
             description = "Public signup endpoint. Allowed roles are CUSTOMER and ORGANIZER."
@@ -87,6 +90,7 @@ public class UserController {
 
     @POST
     @Path("/register/admin")
+    @RolesAllowed("ROLE_ADMIN")
     @Operation(
             summary = "Register an admin",
             description = "Privileged admin signup endpoint guarded by header key."
@@ -115,6 +119,11 @@ public class UserController {
             @ApiResponse(
                     responseCode = "409",
                     description = "Email already exists",
+                    content = @Content(schema = @Schema(implementation = ResponseExceptionDto.class))
+            ),
+            @ApiResponse(
+                    responseCode = "401",
+                    description = "Missing or invalid bearer access token",
                     content = @Content(schema = @Schema(implementation = ResponseExceptionDto.class))
             )
     })
