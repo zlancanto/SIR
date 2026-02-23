@@ -12,6 +12,7 @@ import jpa.dao.abstracts.PlaceDao;
 import jpa.dao.abstracts.UserDao;
 import jpa.dto.concert.CreateConcertRequestDto;
 import jpa.dto.concert.ResponseConcertDetailsDto;
+import jpa.dto.concert.ResponseOrganizerConcertDto;
 import jpa.dto.concert.ResponseConcertPlaceDto;
 import jpa.entities.Admin;
 import jpa.entities.Concert;
@@ -255,6 +256,26 @@ public class ConcertServiceImpl implements ConcertService {
     @Override
     public List<ResponseConcertPlaceDto> getPublishedConcertsWithPlace() {
         return concertDao.findPublishedConcertsWithPlaceProjection();
+    }
+
+    /**
+     * Returns concerts created by the authenticated organizer.
+     *
+     * @param authenticatedOrganizerEmail method parameter
+     * @return organizer concert projections
+     */
+    @Override
+    public List<ResponseOrganizerConcertDto> getOrganizerConcerts(String authenticatedOrganizerEmail) {
+        String email = normalizeRequired("authenticatedOrganizerEmail", authenticatedOrganizerEmail)
+                .toLowerCase(Locale.ROOT);
+
+        User authenticatedUser = userDao.findByEmail(email)
+                .orElseThrow(() -> new NotFoundException("Organizer not found"));
+        if (!(authenticatedUser instanceof Organizer organizer)) {
+            throw new ForbiddenException("User is not an organizer");
+        }
+
+        return concertDao.findOrganizerConcertsProjection(organizer.getId());
     }
 
     private ResponseConcertDetailsDto toResponse(Concert concert) {

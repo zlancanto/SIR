@@ -3,6 +3,7 @@ package jpa.dao.abstracts;
 import jpa.dao.generic.AbstractJpaDao;
 import jpa.dto.concert.ResponseConcertDetailsDto;
 import jpa.dto.concert.ResponseConcertPlaceDto;
+import jpa.dto.concert.ResponseOrganizerConcertDto;
 import jpa.entities.Concert;
 import jpa.enums.ConcertStatus;
 
@@ -49,6 +50,14 @@ public abstract class ConcertDao extends AbstractJpaDao<UUID, Concert> {
      * @return projected pending concerts
      */
     public abstract List<ResponseConcertDetailsDto> findPendingConcertDetailsProjection();
+
+    /**
+     * Returns concerts created by one organizer with place and ticket aggregates.
+     *
+     * @param organizerId target organizer identifier
+     * @return organizer concert projections
+     */
+    public abstract List<ResponseOrganizerConcertDto> findOrganizerConcertsProjection(UUID organizerId);
 
     /**
      * Returns true when a place already has a concert in the requested slot window.

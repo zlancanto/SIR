@@ -8,6 +8,7 @@ import jakarta.persistence.criteria.Root;
 import jpa.dao.abstracts.ConcertDao;
 import jpa.dto.concert.ResponseConcertDetailsDto;
 import jpa.dto.concert.ResponseConcertPlaceDto;
+import jpa.dto.concert.ResponseOrganizerConcertDto;
 import jpa.entities.Concert;
 import jpa.enums.ConcertStatus;
 
@@ -131,6 +132,50 @@ public class ConcertDaoImpl extends ConcertDao {
                 .toList();
     }
 
+    /**
+     * Executes findOrganizerConcertsProjection operation.
+     *
+     * @param organizerId method parameter
+     * @return operation result
+     */
+    @Override
+    public List<ResponseOrganizerConcertDto> findOrganizerConcertsProjection(UUID organizerId) {
+        if (organizerId == null) {
+            return List.of();
+        }
+
+        EntityManager em = getEntityManager();
+        String jpql = """
+                SELECT
+                    c.title,
+                    c.artist,
+                    c.createdAt,
+                    c.date,
+                    c.status,
+                    p.address,
+                    p.zipCode,
+                    p.city,
+                    p.capacity,
+                    COALESCE(SUM(CASE WHEN t.sold = true THEN 1 ELSE 0 END), 0),
+                    COUNT(t.id)
+                FROM Concert c
+                JOIN c.organizer o
+                LEFT JOIN c.place p
+                LEFT JOIN c.tickets t
+                WHERE o.id = :organizerId
+                GROUP BY c.id, c.title, c.artist, c.createdAt, c.date, c.status, p.address, p.zipCode, p.city, p.capacity
+                ORDER BY c.createdAt DESC
+                """;
+
+        List<Object[]> rows = em.createQuery(jpql, Object[].class)
+                .setParameter("organizerId", organizerId)
+                .getResultList();
+
+        return rows.stream()
+                .map(this::toOrganizerConcertProjection)
+                .toList();
+    }
+
     @Override
     public boolean existsPlaceBookingConflict(
             UUID placeId,
@@ -211,6 +256,34 @@ public class ConcertDaoImpl extends ConcertDao {
                 placeId,
                 createdAt,
                 updatedAt
+        );
+    }
+
+    private ResponseOrganizerConcertDto toOrganizerConcertProjection(Object[] row) {
+        String concertTitle = (String) row[0];
+        String concertArtist = (String) row[1];
+        Instant concertCreatedAt = (Instant) row[2];
+        Instant concertDate = (Instant) row[3];
+        ConcertStatus concertStatus = (ConcertStatus) row[4];
+        String placeAddress = (String) row[5];
+        Integer placeZipCode = row[6] == null ? null : ((Number) row[6]).intValue();
+        String placeCity = (String) row[7];
+        Integer placeCapacity = row[8] == null ? null : ((Number) row[8]).intValue();
+        Integer ticketSold = row[9] == null ? 0 : ((Number) row[9]).intValue();
+        Integer ticketQuantity = row[10] == null ? 0 : ((Number) row[10]).intValue();
+
+        return new ResponseOrganizerConcertDto(
+                concertTitle,
+                concertArtist,
+                concertCreatedAt,
+                concertDate,
+                concertStatus != null ? concertStatus.name() : null,
+                placeAddress,
+                placeZipCode,
+                placeCity,
+                placeCapacity,
+                ticketSold,
+                ticketQuantity
         );
     }
 }

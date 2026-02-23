@@ -2,6 +2,7 @@ package jpa.services.interfaces;
 
 import jpa.dto.concert.CreateConcertRequestDto;
 import jpa.dto.concert.ResponseConcertDetailsDto;
+import jpa.dto.concert.ResponseOrganizerConcertDto;
 import jpa.dto.concert.ResponseConcertPlaceDto;
 
 import java.util.List;
@@ -52,4 +53,12 @@ public interface ConcertService {
      * @return published concerts projected with place information
      */
     List<ResponseConcertPlaceDto> getPublishedConcertsWithPlace();
+
+    /**
+     * Lists concerts created by the authenticated organizer.
+     *
+     * @param authenticatedOrganizerEmail organizer email extracted from JWT context
+     * @return organizer concert projections
+     */
+    List<ResponseOrganizerConcertDto> getOrganizerConcerts(String authenticatedOrganizerEmail);
 }

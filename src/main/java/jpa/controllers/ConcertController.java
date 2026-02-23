@@ -20,6 +20,7 @@ import jakarta.ws.rs.core.SecurityContext;
 import jpa.config.Instance;
 import jpa.dto.concert.CreateConcertRequestDto;
 import jpa.dto.concert.ResponseConcertDetailsDto;
+import jpa.dto.concert.ResponseOrganizerConcertDto;
 import jpa.dto.concert.ResponseConcertPlaceDto;
 import jpa.dto.exceptions.ResponseExceptionDto;
 import jpa.services.interfaces.ConcertService;
@@ -216,6 +217,50 @@ public class ConcertController {
     })
     public Response getPublishedConcertsWithPlace() {
         List<ResponseConcertPlaceDto> concerts = concertService.getPublishedConcertsWithPlace();
+        return Response.ok(concerts).build();
+    }
+
+    /**
+     * Lists concerts created by the authenticated organizer.
+     *
+     * @param securityContext authenticated security context
+     * @return HTTP 200 with organizer concerts
+     */
+    @GET
+    @Path("/me")
+    @RolesAllowed("ROLE_ORGANIZER")
+    @Operation(
+            summary = "List organizer concerts",
+            description = "Returns concerts created by the authenticated organizer with place and ticket aggregates."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Organizer concerts",
+                    content = @Content(
+                            array = @ArraySchema(schema = @Schema(implementation = ResponseOrganizerConcertDto.class))
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "401",
+                    description = "Missing or invalid bearer access token",
+                    content = @Content(schema = @Schema(implementation = ResponseExceptionDto.class))
+            ),
+            @ApiResponse(
+                    responseCode = "403",
+                    description = "User does not have organizer privileges",
+                    content = @Content(schema = @Schema(implementation = ResponseExceptionDto.class))
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Organizer not found",
+                    content = @Content(schema = @Schema(implementation = ResponseExceptionDto.class))
+            )
+    })
+    public Response getMyConcerts(@Context SecurityContext securityContext) {
+        String msgException = "Authenticated organizer is required";
+        String authenticatedOrganizerEmail = resolveAuthenticatedEmail(securityContext, msgException);
+        List<ResponseOrganizerConcertDto> concerts = concertService.getOrganizerConcerts(authenticatedOrganizerEmail);
         return Response.ok(concerts).build();
     }
 
