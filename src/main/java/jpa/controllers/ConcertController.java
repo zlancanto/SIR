@@ -19,6 +19,7 @@ import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.SecurityContext;
 import jpa.config.Instance;
 import jpa.dto.concert.CreateConcertRequestDto;
+import jpa.dto.concert.ResponseAdminConcertModerationDto;
 import jpa.dto.concert.ResponseConcertDetailsDto;
 import jpa.dto.concert.ResponseConcertPlaceDto;
 import jpa.dto.concert.ResponseOrganizerConcertDto;
@@ -274,14 +275,14 @@ public class ConcertController {
     @RolesAllowed("ROLE_ADMIN")
     @Operation(
             summary = "List pending concerts",
-            description = "Returns concerts awaiting validation for authenticated admins."
+            description = "Returns concerts with status PENDING_VALIDATION in moderation projection format."
     )
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "200",
                     description = "Pending concerts",
                     content = @Content(
-                            array = @ArraySchema(schema = @Schema(implementation = ResponseConcertDetailsDto.class))
+                            array = @ArraySchema(schema = @Schema(implementation = ResponseAdminConcertModerationDto.class))
                     )
             ),
             @ApiResponse(
@@ -296,7 +297,79 @@ public class ConcertController {
             )
     })
     public Response getPendingConcerts() {
-        List<ResponseConcertDetailsDto> concerts = concertService.getPendingConcerts();
+        List<ResponseAdminConcertModerationDto> concerts = concertService.getPendingModerationConcerts();
+        return Response.ok(concerts).build();
+    }
+
+    /**
+     * Lists approved concerts.
+     *
+     * @return HTTP 200 with approved concerts
+     */
+    @GET
+    @Path("/approved")
+    @RolesAllowed("ROLE_ADMIN")
+    @Operation(
+            summary = "List approved concerts",
+            description = "Returns concerts with status PUBLISHED in moderation projection format."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Approved concerts",
+                    content = @Content(
+                            array = @ArraySchema(schema = @Schema(implementation = ResponseAdminConcertModerationDto.class))
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "403",
+                    description = "User does not have admin privileges",
+                    content = @Content(schema = @Schema(implementation = ResponseExceptionDto.class))
+            ),
+            @ApiResponse(
+                    responseCode = "401",
+                    description = "Missing or invalid bearer access token",
+                    content = @Content(schema = @Schema(implementation = ResponseExceptionDto.class))
+            )
+    })
+    public Response getApprovedConcerts() {
+        List<ResponseAdminConcertModerationDto> concerts = concertService.getApprovedConcerts();
+        return Response.ok(concerts).build();
+    }
+
+    /**
+     * Lists rejected concerts.
+     *
+     * @return HTTP 200 with rejected concerts
+     */
+    @GET
+    @Path("/rejected")
+    @RolesAllowed("ROLE_ADMIN")
+    @Operation(
+            summary = "List rejected concerts",
+            description = "Returns concerts with status REJECTED in moderation projection format."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Rejected concerts",
+                    content = @Content(
+                            array = @ArraySchema(schema = @Schema(implementation = ResponseAdminConcertModerationDto.class))
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "403",
+                    description = "User does not have admin privileges",
+                    content = @Content(schema = @Schema(implementation = ResponseExceptionDto.class))
+            ),
+            @ApiResponse(
+                    responseCode = "401",
+                    description = "Missing or invalid bearer access token",
+                    content = @Content(schema = @Schema(implementation = ResponseExceptionDto.class))
+            )
+    })
+    public Response getRejectedConcerts() {
+        List<ResponseAdminConcertModerationDto> concerts = concertService.getRejectedConcerts();
         return Response.ok(concerts).build();
     }
 }

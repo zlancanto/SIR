@@ -6,6 +6,7 @@ import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import jpa.dao.abstracts.ConcertDao;
+import jpa.dto.concert.ResponseAdminConcertModerationDto;
 import jpa.dto.concert.ResponseConcertDetailsDto;
 import jpa.dto.concert.ResponseConcertPlaceDto;
 import jpa.dto.concert.ResponseOrganizerConcertDto;
@@ -129,6 +130,52 @@ public class ConcertDaoImpl extends ConcertDao {
 
         return rows.stream()
                 .map(this::toPendingConcertDetailsProjection)
+                .toList();
+    }
+
+    /**
+     * Executes findConcertsForModerationByStatus operation.
+     *
+     * @param status method parameter
+     * @return operation result
+     */
+    @Override
+    public List<ResponseAdminConcertModerationDto> findConcertsForModerationByStatus(ConcertStatus status) {
+        if (status == null) {
+            return List.of();
+        }
+
+        EntityManager em = getEntityManager();
+        String jpql = """
+                SELECT
+                    c.title,
+                    c.artist,
+                    c.createdAt,
+                    c.date,
+                    p.address,
+                    p.zipCode,
+                    p.city,
+                    p.capacity,
+                    COUNT(t.id),
+                    o.firstName,
+                    o.lastName
+                FROM Concert c
+                LEFT JOIN c.organizer o
+                LEFT JOIN c.place p
+                LEFT JOIN c.tickets t
+                WHERE c.status = :status
+                GROUP BY c.id, c.title, c.artist, c.createdAt, c.date,
+                         p.address, p.zipCode, p.city, p.capacity,
+                         o.firstName, o.lastName
+                ORDER BY c.createdAt DESC
+                """;
+
+        List<Object[]> rows = em.createQuery(jpql, Object[].class)
+                .setParameter("status", status)
+                .getResultList();
+
+        return rows.stream()
+                .map(this::toAdminConcertModerationProjection)
                 .toList();
     }
 
@@ -284,6 +331,34 @@ public class ConcertDaoImpl extends ConcertDao {
                 placeCapacity,
                 ticketSold,
                 ticketQuantity
+        );
+    }
+
+    private ResponseAdminConcertModerationDto toAdminConcertModerationProjection(Object[] row) {
+        String concertTitle = (String) row[0];
+        String concertArtist = (String) row[1];
+        Instant concertCreatedAt = (Instant) row[2];
+        Instant concertDate = (Instant) row[3];
+        String placeAddress = (String) row[4];
+        Integer placeZipCode = row[5] == null ? null : ((Number) row[5]).intValue();
+        String placeCity = (String) row[6];
+        Integer placeCapacity = row[7] == null ? null : ((Number) row[7]).intValue();
+        Integer ticketQuantity = row[8] == null ? 0 : ((Number) row[8]).intValue();
+        String organizerFistName = (String) row[9];
+        String organizerLastName = (String) row[10];
+
+        return new ResponseAdminConcertModerationDto(
+                concertTitle,
+                concertArtist,
+                concertCreatedAt,
+                concertDate,
+                placeAddress,
+                placeZipCode,
+                placeCity,
+                placeCapacity,
+                ticketQuantity,
+                organizerFistName,
+                organizerLastName
         );
     }
 }

@@ -11,6 +11,7 @@ import jpa.dao.abstracts.OrganizerDao;
 import jpa.dao.abstracts.PlaceDao;
 import jpa.dao.abstracts.UserDao;
 import jpa.dto.concert.CreateConcertRequestDto;
+import jpa.dto.concert.ResponseAdminConcertModerationDto;
 import jpa.dto.concert.ResponseConcertDetailsDto;
 import jpa.dto.concert.ResponseConcertPlaceDto;
 import jpa.dto.concert.ResponseOrganizerConcertDto;
@@ -249,6 +250,36 @@ public class ConcertServiceImpl implements ConcertService {
     }
 
     /**
+     * Returns pending concerts with moderation projection.
+     *
+     * @return pending moderation concerts
+     */
+    @Override
+    public List<ResponseAdminConcertModerationDto> getPendingModerationConcerts() {
+        return getModerationConcertsByStatus(ConcertStatus.PENDING_VALIDATION);
+    }
+
+    /**
+     * Returns approved concerts with moderation projection.
+     *
+     * @return approved moderation concerts
+     */
+    @Override
+    public List<ResponseAdminConcertModerationDto> getApprovedConcerts() {
+        return getModerationConcertsByStatus(ConcertStatus.PUBLISHED);
+    }
+
+    /**
+     * Returns rejected concerts with moderation projection.
+     *
+     * @return rejected moderation concerts
+     */
+    @Override
+    public List<ResponseAdminConcertModerationDto> getRejectedConcerts() {
+        return getModerationConcertsByStatus(ConcertStatus.REJECTED);
+    }
+
+    /**
      * Returns published concerts with place details.
      *
      * @return published concert projections
@@ -296,6 +327,10 @@ public class ConcertServiceImpl implements ConcertService {
                 concert.getCreatedAt(),
                 concert.getUpdatedAt()
         );
+    }
+
+    private List<ResponseAdminConcertModerationDto> getModerationConcertsByStatus(ConcertStatus status) {
+        return concertDao.findConcertsForModerationByStatus(status);
     }
 
     private List<Ticket> createInitialTickets(Concert concert, int quantity, BigDecimal unitPrice) {

@@ -1,6 +1,7 @@
 package jpa.dao.abstracts;
 
 import jpa.dao.generic.AbstractJpaDao;
+import jpa.dto.concert.ResponseAdminConcertModerationDto;
 import jpa.dto.concert.ResponseConcertDetailsDto;
 import jpa.dto.concert.ResponseConcertPlaceDto;
 import jpa.dto.concert.ResponseOrganizerConcertDto;
@@ -50,6 +51,14 @@ public abstract class ConcertDao extends AbstractJpaDao<UUID, Concert> {
      * @return projected pending concerts
      */
     public abstract List<ResponseConcertDetailsDto> findPendingConcertDetailsProjection();
+
+    /**
+     * Returns moderation projection for all concerts matching one workflow status.
+     *
+     * @param status workflow status to filter by
+     * @return moderation rows ordered by creation timestamp desc
+     */
+    public abstract List<ResponseAdminConcertModerationDto> findConcertsForModerationByStatus(ConcertStatus status);
 
     /**
      * Returns concerts created by one organizer with place and ticket aggregates.

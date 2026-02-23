@@ -1,6 +1,7 @@
 package jpa.services.interfaces;
 
 import jpa.dto.concert.CreateConcertRequestDto;
+import jpa.dto.concert.ResponseAdminConcertModerationDto;
 import jpa.dto.concert.ResponseConcertDetailsDto;
 import jpa.dto.concert.ResponseOrganizerConcertDto;
 import jpa.dto.concert.ResponseConcertPlaceDto;
@@ -46,6 +47,27 @@ public interface ConcertService {
      * @return concerts with status {@code PENDING_VALIDATION}
      */
     List<ResponseConcertDetailsDto> getPendingConcerts();
+
+    /**
+     * Lists pending concerts for admin moderation using flattened projection.
+     *
+     * @return concerts with status {@code PENDING_VALIDATION}
+     */
+    List<ResponseAdminConcertModerationDto> getPendingModerationConcerts();
+
+    /**
+     * Lists approved concerts for admin moderation using flattened projection.
+     *
+     * @return concerts with status {@code PUBLISHED}
+     */
+    List<ResponseAdminConcertModerationDto> getApprovedConcerts();
+
+    /**
+     * Lists rejected concerts for admin moderation using flattened projection.
+     *
+     * @return concerts with status {@code REJECTED}
+     */
+    List<ResponseAdminConcertModerationDto> getRejectedConcerts();
 
     /**
      * Lists published concerts with venue details.
