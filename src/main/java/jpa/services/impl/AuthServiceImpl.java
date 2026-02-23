@@ -7,14 +7,11 @@ import jpa.dao.abstracts.UserDao;
 import jpa.dto.auth.LoginRequestDto;
 import jpa.dto.auth.RefreshTokenRequestDto;
 import jpa.dto.auth.TokenPairResponseDto;
-import jpa.entities.Admin;
-import jpa.entities.Customer;
-import jpa.entities.Organizer;
 import jpa.entities.RefreshToken;
 import jpa.entities.User;
-import jpa.enums.Roles;
 import jpa.security.interfaces.AccessTokenService;
 import jpa.services.interfaces.AuthService;
+import jpa.utils.UserRoleResolver;
 
 import java.time.Instant;
 import java.util.Locale;
@@ -132,7 +129,7 @@ public class AuthServiceImpl implements AuthService {
      * @return token pair payload
      */
     private TokenPairResponseDto issueTokenPair(User user, Instant now) {
-        String role = resolveRole(user);
+        String role = UserRoleResolver.resolve(user).name();
         Instant accessExpiresAt = now.plusSeconds(accessTokenService.getAccessTokenTtlSeconds());
         Instant refreshExpiresAt = now.plusSeconds(accessTokenService.getRefreshTokenTtlSeconds());
 
@@ -153,24 +150,5 @@ public class AuthServiceImpl implements AuthService {
                 accessExpiresAt,
                 refreshExpiresAt
         );
-    }
-
-    /**
-     * Resolves persisted role string from user subtype.
-     *
-     * @param user persisted user entity
-     * @return role name matching existing role conventions
-     */
-    private String resolveRole(User user) {
-        if (user instanceof Admin) {
-            return Roles.ROLE_ADMIN.name();
-        }
-        if (user instanceof Organizer) {
-            return Roles.ROLE_ORGANIZER.name();
-        }
-        if (user instanceof Customer) {
-            return Roles.ROLE_CUSTOMER.name();
-        }
-        throw new IllegalStateException("Unsupported user type: " + user.getClass().getSimpleName());
     }
 }

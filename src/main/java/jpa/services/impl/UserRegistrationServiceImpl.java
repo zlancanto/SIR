@@ -17,6 +17,7 @@ import jpa.entities.Organizer;
 import jpa.entities.User;
 import jpa.enums.Roles;
 import jpa.services.interfaces.UserRegistrationService;
+import jpa.utils.UserRoleResolver;
 
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
@@ -114,7 +115,7 @@ public class UserRegistrationServiceImpl implements UserRegistrationService {
                 user.getEmail(),
                 user.getFirstName(),
                 user.getLastName(),
-                resolvePersistedRole(user),
+                UserRoleResolver.resolve(user).name(),
                 user.getCreatedAt()
         );
     }
@@ -185,19 +186,6 @@ public class UserRegistrationServiceImpl implements UserRegistrationService {
             case ROLE_ORGANIZER -> new Organizer();
             default -> throw new ForbiddenException("No self-registration factory for role " + role.name());
         };
-    }
-
-    private String resolvePersistedRole(User user) {
-        if (user instanceof Admin) {
-            return Roles.ROLE_ADMIN.name();
-        }
-        if (user instanceof Organizer) {
-            return Roles.ROLE_ORGANIZER.name();
-        }
-        if (user instanceof Customer) {
-            return Roles.ROLE_CUSTOMER.name();
-        }
-        throw new IllegalStateException("Unsupported user type: " + user.getClass().getSimpleName());
     }
 
     private void validateAdminRegistrationKey(String providedKey) {
