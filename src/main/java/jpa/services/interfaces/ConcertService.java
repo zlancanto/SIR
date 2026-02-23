@@ -2,6 +2,7 @@ package jpa.services.interfaces;
 
 import jpa.dto.concert.CreateConcertRequestDto;
 import jpa.dto.concert.ResponseConcertDetailsDto;
+import jpa.dto.concert.ResponseConcertPlaceDto;
 
 import java.util.List;
 import java.util.UUID;
@@ -44,4 +45,11 @@ public interface ConcertService {
      * @return concerts with status {@code PENDING_VALIDATION}
      */
     List<ResponseConcertDetailsDto> getPendingConcerts();
+
+    /**
+     * Lists published concerts with venue details.
+     *
+     * @return published concerts projected with place information
+     */
+    List<ResponseConcertPlaceDto> getPublishedConcertsWithPlace();
 }

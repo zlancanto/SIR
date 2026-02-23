@@ -12,6 +12,7 @@ import jpa.dao.abstracts.PlaceDao;
 import jpa.dao.abstracts.UserDao;
 import jpa.dto.concert.CreateConcertRequestDto;
 import jpa.dto.concert.ResponseConcertDetailsDto;
+import jpa.dto.concert.ResponseConcertPlaceDto;
 import jpa.entities.Admin;
 import jpa.entities.Concert;
 import jpa.entities.Organizer;
@@ -243,10 +244,17 @@ public class ConcertServiceImpl implements ConcertService {
      */
     @Override
     public List<ResponseConcertDetailsDto> getPendingConcerts() {
-        return concertDao.findByStatus(ConcertStatus.PENDING_VALIDATION)
-                .stream()
-                .map(this::toResponse)
-                .toList();
+        return concertDao.findPendingConcertDetailsProjection();
+    }
+
+    /**
+     * Returns published concerts with place details.
+     *
+     * @return published concert projections
+     */
+    @Override
+    public List<ResponseConcertPlaceDto> getPublishedConcertsWithPlace() {
+        return concertDao.findPublishedConcertsWithPlaceProjection();
     }
 
     private ResponseConcertDetailsDto toResponse(Concert concert) {

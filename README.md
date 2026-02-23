@@ -211,7 +211,8 @@ Service:
 1. `POST /concerts/create` (prive: `ROLE_ORGANIZER`)
 2. `POST /concerts/{concertId}/validate` (prive: `ROLE_ADMIN`)
 3. `GET /concerts/public` (public)
-4. `GET /concerts/pending` (prive: `ROLE_ADMIN`)
+4. `GET /concerts/public/places` (public, projection avec details de salle)
+5. `GET /concerts/pending` (prive: `ROLE_ADMIN`)
 
 Controller:
 `src/main/java/jpa/controllers/ConcertController.java`
@@ -246,6 +247,7 @@ Pour tous les endpoints prives, il faut fournir:
 | POST    | `/concerts/create`               | Prive (`@RolesAllowed`) | Role `ROLE_ORGANIZER`                                     | `src/main/java/jpa/controllers/ConcertController.java` |
 | POST    | `/concerts/{concertId}/validate` | Prive (`@RolesAllowed`) | Role `ROLE_ADMIN`                                         | `src/main/java/jpa/controllers/ConcertController.java` |
 | GET     | `/concerts/public`               | Public (`@PermitAll`)   | Aucune                                                    | `src/main/java/jpa/controllers/ConcertController.java` |
+| GET     | `/concerts/public/places`        | Public (`@PermitAll`)   | Concerts `PUBLISHED` + infos place + `placeAvailables`   | `src/main/java/jpa/controllers/ConcertController.java` |
 | GET     | `/concerts/pending`              | Prive (`@RolesAllowed`) | Role `ROLE_ADMIN`                                         | `src/main/java/jpa/controllers/ConcertController.java` |
 | POST    | `/tickets/purchase`              | Prive (`@RolesAllowed`) | Role `ROLE_CUSTOMER`                                      | `src/main/java/jpa/controllers/TicketController.java`  |
 
@@ -274,6 +276,7 @@ Exemples:
 2. `CreateUserRequestDto`, `CreateAdminRequestDto`, `ResponseUserDto`
 3. `LoginRequestDto`, `RefreshTokenRequestDto`, `TokenPairResponseDto`
 4. `PurchaseTicketsRequestDto`, `ResponseTicketDetailsDto`
+5. `ResponseConcertPlaceDto`
 
 Dossiers:
 
@@ -390,6 +393,12 @@ curl -X POST http://localhost:8081/concerts/create \
 curl -X POST http://localhost:8081/concerts/<concert_uuid>/validate \
   -H "Authorization: Bearer <access_token_admin>" \
   -H "Content-Type: application/json"
+```
+
+### Liste concerts publies avec details de salle
+
+```bash
+curl -X GET http://localhost:8081/concerts/public/places
 ```
 
 ### Achat de tickets (customer)

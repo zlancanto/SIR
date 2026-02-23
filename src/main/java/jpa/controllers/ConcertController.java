@@ -20,6 +20,7 @@ import jakarta.ws.rs.core.SecurityContext;
 import jpa.config.Instance;
 import jpa.dto.concert.CreateConcertRequestDto;
 import jpa.dto.concert.ResponseConcertDetailsDto;
+import jpa.dto.concert.ResponseConcertPlaceDto;
 import jpa.dto.exceptions.ResponseExceptionDto;
 import jpa.services.interfaces.ConcertService;
 
@@ -189,6 +190,32 @@ public class ConcertController {
     })
     public Response getPublicConcerts() {
         List<ResponseConcertDetailsDto> concerts = concertService.getPublicConcerts();
+        return Response.ok(concerts).build();
+    }
+
+    /**
+     * Lists published concerts with place details and available seats.
+     *
+     * @return HTTP 200 with published concerts projection
+     */
+    @GET
+    @Path("/public/places")
+    @PermitAll
+    @Operation(
+            summary = "List published concerts with place details",
+            description = "Returns published concerts in projection format with place metadata and available places."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Published concerts with place details",
+                    content = @Content(
+                            array = @ArraySchema(schema = @Schema(implementation = ResponseConcertPlaceDto.class))
+                    )
+            )
+    })
+    public Response getPublishedConcertsWithPlace() {
+        List<ResponseConcertPlaceDto> concerts = concertService.getPublishedConcertsWithPlace();
         return Response.ok(concerts).build();
     }
 
