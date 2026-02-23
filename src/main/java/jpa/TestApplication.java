@@ -58,6 +58,7 @@ public class TestApplication extends Application {
         clazzes.add(NotSupportedExceptionHandler.class);
         clazzes.add(ClientErrorExceptionHandler.class);
         clazzes.add(ServerErrorExceptionHandler.class);
+        clazzes.add(InvalidFormatExceptionHandler.class);
         clazzes.add(IllegalArgumentExceptionHandler.class);
         clazzes.add(IllegalStateExceptionHandler.class);
         clazzes.add(WebApplicationExceptionHandler.class);

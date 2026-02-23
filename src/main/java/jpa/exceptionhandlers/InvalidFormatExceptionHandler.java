@@ -30,13 +30,13 @@ public class InvalidFormatExceptionHandler extends BaseExceptionMapper
     }
 
     private String buildInvalidFormatMessage(InvalidFormatException ex) {
-        String field = "request body";
+        StringBuilder field = new StringBuilder("request body");
         if (ex.getPath() != null && !ex.getPath().isEmpty()) {
             JsonMappingException.Reference ref = ex.getPath().get(ex.getPath().size() - 1);
             if (ref.getFieldName() != null && !ref.getFieldName().isBlank()) {
-                field = ref.getFieldName();
+                field.replace(0, field.length(), ref.getFieldName());
             } else if (ref.getIndex() >= 0) {
-                field = "index " + ref.getIndex();
+                field.replace(0, field.length(),"index " + ref.getIndex());
             }
         }
 
