@@ -8,6 +8,7 @@ import jpa.dao.abstracts.ConcertDao;
 import jpa.dao.abstracts.CustomerDao;
 import jpa.dao.abstracts.TicketDao;
 import jpa.dto.ticket.PurchaseTicketsRequestDto;
+import jpa.dto.ticket.ResponseCustomerTicketDto;
 import jpa.dto.ticket.ResponseTicketDetailsDto;
 import jpa.entities.Concert;
 import jpa.entities.Customer;
@@ -104,5 +105,22 @@ public class TicketServiceImpl implements TicketService {
                 ticket.getBarcode(),
                 ticket.getPrice()
         );
+    }
+
+    /**
+     * Executes getCustomerTickets operation.
+     *
+     * @param authenticatedCustomerEmail method parameter
+     * @return operation result
+     */
+    @Override
+    public List<ResponseCustomerTicketDto> getCustomerTickets(String authenticatedCustomerEmail) {
+        String customerEmail = normalizeRequired("authenticatedCustomerEmail", authenticatedCustomerEmail)
+                .toLowerCase(Locale.ROOT);
+
+        Customer customer = customerDao.findByEmail(customerEmail)
+                .orElseThrow(() -> new NotFoundException("Customer not found"));
+
+        return ticketDao.findCustomerTicketsProjection(customer.getId());
     }
 }

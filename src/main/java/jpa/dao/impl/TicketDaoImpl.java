@@ -3,6 +3,7 @@ package jpa.dao.impl;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.LockModeType;
 import jpa.dao.abstracts.TicketDao;
+import jpa.dto.ticket.ResponseCustomerTicketDto;
 import jpa.entities.Customer;
 import jpa.entities.Ticket;
 
@@ -82,5 +83,46 @@ public class TicketDaoImpl extends TicketDao {
 
             return available;
         });
+    }
+
+    /**
+     * Executes findCustomerTicketsProjection operation.
+     *
+     * @param customerId method parameter
+     * @return operation result
+     */
+    @Override
+    public List<ResponseCustomerTicketDto> findCustomerTicketsProjection(UUID customerId) {
+        if (customerId == null) {
+            return List.of();
+        }
+
+        EntityManager em = getEntityManager();
+        String jpql = """
+                SELECT new jpa.dto.ticket.ResponseCustomerTicketDto(
+                    t.id,
+                    t.price,
+                    t.barcode,
+                    c.title,
+                    c.artist,
+                    c.date,
+                    p.name,
+                    p.address,
+                    p.zipCode,
+                    p.city,
+                    p.capacity
+                )
+                FROM Ticket t
+                JOIN t.customer cu
+                JOIN t.concert c
+                LEFT JOIN c.place p
+                WHERE cu.id = :customerId
+                  AND t.sold = true
+                ORDER BY c.date ASC, t.createdAt ASC
+                """;
+
+        return em.createQuery(jpql, ResponseCustomerTicketDto.class)
+                .setParameter("customerId", customerId)
+                .getResultList();
     }
 }

@@ -1,6 +1,7 @@
 package jpa.dao.abstracts;
 
 import jpa.dao.generic.AbstractJpaDao;
+import jpa.dto.ticket.ResponseCustomerTicketDto;
 import jpa.entities.Customer;
 import jpa.entities.Ticket;
 
@@ -39,4 +40,12 @@ public abstract class TicketDao extends AbstractJpaDao<UUID, Ticket> {
      * @return reserved tickets, or empty list if not enough availability
      */
     public abstract List<Ticket> reserveAvailableTickets(UUID concertId, Customer customer, int quantity);
+
+    /**
+     * Returns purchased tickets for one customer with concert/place projection.
+     *
+     * @param customerId target customer identifier
+     * @return projected customer tickets
+     */
+    public abstract List<ResponseCustomerTicketDto> findCustomerTicketsProjection(UUID customerId);
 }

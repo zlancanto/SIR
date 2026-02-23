@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
@@ -20,6 +21,7 @@ import jakarta.ws.rs.core.SecurityContext;
 import jpa.config.Instance;
 import jpa.dto.exceptions.ResponseExceptionDto;
 import jpa.dto.ticket.PurchaseTicketsRequestDto;
+import jpa.dto.ticket.ResponseCustomerTicketDto;
 import jpa.dto.ticket.ResponseTicketDetailsDto;
 import jpa.services.interfaces.TicketService;
 
@@ -102,5 +104,49 @@ public class TicketController {
         String authenticatedCustomerEmail = resolveAuthenticatedEmail(securityContext, msgException);
         List<ResponseTicketDetailsDto> purchased = ticketService.purchaseTickets(request, authenticatedCustomerEmail);
         return Response.ok(purchased).build();
+    }
+
+    /**
+     * Lists tickets purchased by the authenticated customer.
+     *
+     * @param securityContext authenticated security context
+     * @return HTTP 200 with customer tickets
+     */
+    @GET
+    @Path("/me")
+    @RolesAllowed("ROLE_CUSTOMER")
+    @Operation(
+            summary = "List current customer tickets",
+            description = "Returns purchased tickets of the authenticated customer with concert and place details."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Customer tickets",
+                    content = @Content(
+                            array = @ArraySchema(schema = @Schema(implementation = ResponseCustomerTicketDto.class))
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "401",
+                    description = "Missing or invalid bearer access token",
+                    content = @Content(schema = @Schema(implementation = ResponseExceptionDto.class))
+            ),
+            @ApiResponse(
+                    responseCode = "403",
+                    description = "User does not have customer privileges",
+                    content = @Content(schema = @Schema(implementation = ResponseExceptionDto.class))
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Customer not found",
+                    content = @Content(schema = @Schema(implementation = ResponseExceptionDto.class))
+            )
+    })
+    public Response getMyTickets(@Context SecurityContext securityContext) {
+        String msgException = "Authenticated customer is required";
+        String authenticatedCustomerEmail = resolveAuthenticatedEmail(securityContext, msgException);
+        List<ResponseCustomerTicketDto> tickets = ticketService.getCustomerTickets(authenticatedCustomerEmail);
+        return Response.ok(tickets).build();
     }
 }
