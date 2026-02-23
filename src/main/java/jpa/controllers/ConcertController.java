@@ -20,8 +20,8 @@ import jakarta.ws.rs.core.SecurityContext;
 import jpa.config.Instance;
 import jpa.dto.concert.CreateConcertRequestDto;
 import jpa.dto.concert.ResponseConcertDetailsDto;
-import jpa.dto.concert.ResponseOrganizerConcertDto;
 import jpa.dto.concert.ResponseConcertPlaceDto;
+import jpa.dto.concert.ResponseOrganizerConcertDto;
 import jpa.dto.exceptions.ResponseExceptionDto;
 import jpa.services.interfaces.ConcertService;
 

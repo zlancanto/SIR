@@ -19,6 +19,7 @@ public final class Instance {
     public static final TicketDao TICKET_DAO = new TicketDaoImpl();
     public static final UserDao USER_DAO = new UserDaoImpl();
     public static final ConcertDao CONCERT_DAO = new ConcertDaoImpl();
+    public static final OrganizerConcertStatsDao ORGANIZER_CONCERT_STATS_DAO = new OrganizerConcertStatsDaoImpl();
     public static final RefreshTokenDao REFRESH_TOKEN_DAO = new RefreshTokenDaoImpl();
 
     // SECURITY
@@ -31,6 +32,8 @@ public final class Instance {
     // SERVICES
     public static final AdminService ADMIN_SERVICE = new AdminServiceImpl(ADMIN_DAO);
     public static final OrganizerService ORGANIZER_SERVICE = new OrganizerServiceImpl(ORGANIZER_DAO);
+    public static final OrganizerConcertStatsService ORGANIZER_CONCERT_STATS_SERVICE =
+            new OrganizerConcertStatsServiceImpl(ORGANIZER_CONCERT_STATS_DAO, USER_DAO);
     public static final PlaceService PLACE_SERVICE = new PlaceServiceImpl(PLACE_DAO);
     public static final TicketService TICKET_SERVICE = new TicketServiceImpl(
             TICKET_DAO,
