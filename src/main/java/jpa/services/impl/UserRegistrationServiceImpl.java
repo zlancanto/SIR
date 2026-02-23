@@ -3,11 +3,13 @@ package jpa.services.impl;
 import jakarta.ws.rs.BadRequestException;
 import jakarta.ws.rs.ClientErrorException;
 import jakarta.ws.rs.ForbiddenException;
+import jakarta.ws.rs.NotFoundException;
 import jakarta.ws.rs.core.Response;
 import jpa.config.AdminConfig;
 import jpa.dao.abstracts.UserDao;
 import jpa.dto.user.CreateAdminRequestDto;
 import jpa.dto.user.CreateUserRequestDto;
+import jpa.dto.user.ResponseCurrentUserDto;
 import jpa.dto.user.ResponseUserDto;
 import jpa.entities.Admin;
 import jpa.entities.Customer;
@@ -94,6 +96,29 @@ public class UserRegistrationServiceImpl implements UserRegistrationService {
         );
     }
 
+    /**
+     * Executes getCurrentUser operation.
+     *
+     * @param authenticatedEmail method parameter
+     * @return operation result
+     */
+    @Override
+    public ResponseCurrentUserDto getCurrentUser(String authenticatedEmail) {
+        String email = normalizeRequired("authenticatedEmail", authenticatedEmail)
+                .toLowerCase(Locale.ROOT);
+
+        User user = userDao.findByEmail(email)
+                .orElseThrow(() -> new NotFoundException("User not found"));
+
+        return new ResponseCurrentUserDto(
+                user.getEmail(),
+                user.getFirstName(),
+                user.getLastName(),
+                resolvePersistedRole(user),
+                user.getCreatedAt()
+        );
+    }
+
     private ResponseUserDto registerByRole(
             String rawEmail,
             String rawPassword,
@@ -160,6 +185,19 @@ public class UserRegistrationServiceImpl implements UserRegistrationService {
             case ROLE_ORGANIZER -> new Organizer();
             default -> throw new ForbiddenException("No self-registration factory for role " + role.name());
         };
+    }
+
+    private String resolvePersistedRole(User user) {
+        if (user instanceof Admin) {
+            return Roles.ROLE_ADMIN.name();
+        }
+        if (user instanceof Organizer) {
+            return Roles.ROLE_ORGANIZER.name();
+        }
+        if (user instanceof Customer) {
+            return Roles.ROLE_CUSTOMER.name();
+        }
+        throw new IllegalStateException("Unsupported user type: " + user.getClass().getSimpleName());
     }
 
     private void validateAdminRegistrationKey(String providedKey) {

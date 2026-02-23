@@ -10,15 +10,21 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.security.PermitAll;
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.ws.rs.*;
+import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.SecurityContext;
 import jpa.config.Instance;
 import jpa.dto.exceptions.ResponseExceptionDto;
 import jpa.dto.user.CreateAdminRequestDto;
 import jpa.dto.user.CreateUserRequestDto;
+import jpa.dto.user.ResponseCurrentUserDto;
 import jpa.dto.user.ResponseUserDto;
 import jpa.services.interfaces.UserRegistrationService;
+
+import static jpa.utils.Security.resolveAuthenticatedEmail;
 
 /**
  * REST controller exposing UserController endpoints.
@@ -141,5 +147,47 @@ public class UserController {
         return Response.status(Response.Status.CREATED)
                 .entity(created)
                 .build();
+    }
+
+    /**
+     * Returns authenticated user profile.
+     *
+     * @param securityContext authenticated security context
+     * @return HTTP 200 with authenticated user profile
+     */
+    @GET
+    @Path("/me")
+    @RolesAllowed({"ROLE_ADMIN", "ROLE_ORGANIZER", "ROLE_CUSTOMER"})
+    @Operation(
+            summary = "Get authenticated user profile",
+            description = "Returns connected user profile with email, names, role and account creation timestamp."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Authenticated user profile",
+                    content = @Content(schema = @Schema(implementation = ResponseCurrentUserDto.class))
+            ),
+            @ApiResponse(
+                    responseCode = "401",
+                    description = "Missing or invalid bearer access token",
+                    content = @Content(schema = @Schema(implementation = ResponseExceptionDto.class))
+            ),
+            @ApiResponse(
+                    responseCode = "403",
+                    description = "User does not have required privileges",
+                    content = @Content(schema = @Schema(implementation = ResponseExceptionDto.class))
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "User not found",
+                    content = @Content(schema = @Schema(implementation = ResponseExceptionDto.class))
+            )
+    })
+    public Response me(@Context SecurityContext securityContext) {
+        String msgException = "Authenticated user is required";
+        String authenticatedEmail = resolveAuthenticatedEmail(securityContext, msgException);
+        ResponseCurrentUserDto currentUser = userRegistrationService.getCurrentUser(authenticatedEmail);
+        return Response.ok(currentUser).build();
     }
 }
