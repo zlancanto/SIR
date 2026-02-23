@@ -90,7 +90,7 @@ public class UserController {
 
     @POST
     @Path("/register/admin")
-    @RolesAllowed("ROLE_ADMIN")
+    @PermitAll
     @Operation(
             summary = "Register an admin",
             description = "Privileged admin signup endpoint guarded by header key."
