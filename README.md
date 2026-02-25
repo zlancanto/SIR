@@ -319,6 +319,7 @@ Variables:
 3. `APP_AUTH_ACCESS_TOKEN_TTL_SECONDS`
 4. `APP_AUTH_REFRESH_TOKEN_TTL_SECONDS`
 5. `APP_TICKET_MAX_BATCH_SIZE`
+6. `APP_CORS_ALLOWED_ORIGIN` (optionnel, defaut: `http://localhost:5173`)
 
 ### Lancer la base HSQLDB
 
@@ -349,6 +350,15 @@ Au demarrage:
 
 1. Les 20 salles de reference sont seed automatiquement si `places` est vide.
 Fichier: `src/main/java/jpa/config/ReferenceDataInitializer.java`
+
+### Frontend local (Vite)
+
+Le backend autorise CORS pour `http://localhost:5173` par defaut.
+Si ton frontend tourne sur une autre origine, configure:
+
+```bash
+APP_CORS_ALLOWED_ORIGIN=http://localhost:5173
+```
 
 ---
 
