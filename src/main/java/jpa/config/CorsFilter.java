@@ -20,6 +20,8 @@ import jakarta.ws.rs.ext.Provider;
 public class CorsFilter implements ContainerRequestFilter, ContainerResponseFilter {
 
     private static final String ORIGIN_HEADER = "Origin";
+    private static final String ACCESS_CONTROL_ALLOW_CREDENTIALS = "Access-Control-Allow-Credentials";
+    private static final String TRUE = "true";
     private static final String ALLOWED_ORIGIN = CorsConfig.resolveAllowedOrigin();
     private static final String ALLOWED_METHODS = "GET,POST,PUT,PATCH,DELETE,OPTIONS";
     private static final String ALLOWED_HEADERS = "Content-Type,Authorization,X-Admin-Registration-Key";
@@ -43,14 +45,20 @@ public class CorsFilter implements ContainerRequestFilter, ContainerResponseFilt
             return;
         }
 
+        String requestedHeaders = requestContext.getHeaderString("Access-Control-Request-Headers");
+        String allowHeaders = (requestedHeaders == null || requestedHeaders.isBlank())
+                ? ALLOWED_HEADERS
+                : requestedHeaders;
+
         requestContext.abortWith(
                 Response.ok()
                         .header("Access-Control-Allow-Origin", origin)
                         .header("Vary", ORIGIN_HEADER)
                         .header("Access-Control-Allow-Methods", ALLOWED_METHODS)
-                        .header("Access-Control-Allow-Headers", ALLOWED_HEADERS)
+                        .header("Access-Control-Allow-Headers", allowHeaders)
                         .header("Access-Control-Expose-Headers", EXPOSED_HEADERS)
                         .header("Access-Control-Max-Age", MAX_AGE_SECONDS)
+                        .header(ACCESS_CONTROL_ALLOW_CREDENTIALS, TRUE)
                         .build()
         );
     }
@@ -75,6 +83,7 @@ public class CorsFilter implements ContainerRequestFilter, ContainerResponseFilt
         headers.putSingle("Access-Control-Allow-Headers", ALLOWED_HEADERS);
         headers.putSingle("Access-Control-Expose-Headers", EXPOSED_HEADERS);
         headers.putSingle("Access-Control-Max-Age", MAX_AGE_SECONDS);
+        headers.putSingle(ACCESS_CONTROL_ALLOW_CREDENTIALS, TRUE);
     }
 
     /**
