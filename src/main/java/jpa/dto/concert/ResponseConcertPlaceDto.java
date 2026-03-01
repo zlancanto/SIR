@@ -2,6 +2,7 @@ package jpa.dto.concert;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.UUID;
 
@@ -29,6 +30,8 @@ public record ResponseConcertPlaceDto(
         @Schema(description = "Venue capacity", example = "5500", nullable = true)
         Integer placeCapacity,
         @Schema(description = "Available places", example = "1200", nullable = true)
-        Integer availablePlaces
+        Integer availablePlaces,
+        @Schema(description = "Unit ticket price", example = "49.90", nullable = true)
+        BigDecimal ticketUnitPrice
 ) {
 }

@@ -13,6 +13,7 @@ import jpa.dto.concert.ResponseOrganizerConcertDto;
 import jpa.entities.Concert;
 import jpa.enums.ConcertStatus;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
@@ -78,7 +79,8 @@ public class ConcertDaoImpl extends ConcertDao {
                     p.zipCode,
                     p.city,
                     p.capacity,
-                    COALESCE(SUM(CASE WHEN t.sold = true THEN 1 ELSE 0 END), 0)
+                    COALESCE(SUM(CASE WHEN t.sold = true THEN 1 ELSE 0 END), 0),
+                    MIN(t.price)
                 FROM Concert c
                 LEFT JOIN c.place p
                 LEFT JOIN c.tickets t
@@ -261,6 +263,7 @@ public class ConcertDaoImpl extends ConcertDao {
         String placeCity = (String) row[7];
         Integer placeCapacity = row[8] == null ? null : ((Number) row[8]).intValue();
         long soldCount = row[9] == null ? 0L : ((Number) row[9]).longValue();
+        BigDecimal ticketUnitPrice = (BigDecimal) row[10];
 
         Integer placeAvailables = placeCapacity == null
                 ? null
@@ -276,7 +279,8 @@ public class ConcertDaoImpl extends ConcertDao {
                 placeZipCode,
                 placeCity,
                 placeCapacity,
-                placeAvailables
+                placeAvailables,
+                ticketUnitPrice
         );
     }
 
