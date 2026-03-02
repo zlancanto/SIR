@@ -11,6 +11,7 @@ import jpa.controllers.AuthController;
 import jpa.controllers.ConcertController;
 import jpa.controllers.OpenApiAliasController;
 import jpa.controllers.OrganizerConcertStatsController;
+import jpa.controllers.PlaceController;
 import jpa.controllers.SwaggerUiController;
 import jpa.controllers.TicketController;
 import jpa.controllers.UserController;
@@ -44,6 +45,7 @@ public class TestApplication extends Application {
         clazzes.add(AuthController.class);
         clazzes.add(UserController.class);
         clazzes.add(ConcertController.class);
+        clazzes.add(PlaceController.class);
         clazzes.add(OrganizerConcertStatsController.class);
         clazzes.add(TicketController.class);
         clazzes.add(OpenApiAliasController.class);
