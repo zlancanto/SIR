@@ -112,6 +112,7 @@ public class UserRegistrationServiceImpl implements UserRegistrationService {
                 .orElseThrow(() -> new NotFoundException("User not found"));
 
         return new ResponseCurrentUserDto(
+                user.getId(),
                 user.getEmail(),
                 user.getFirstName(),
                 user.getLastName(),

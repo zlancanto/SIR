@@ -132,6 +132,13 @@ public class ConcertServiceImpl implements ConcertService {
 
         String title = normalizeRequired("title", request.title());
         String artist = request.artist() == null ? null : request.artist().trim();
+        String description = request.description() == null ? null : request.description().trim();
+        if (description != null && description.isEmpty()) {
+            description = null;
+        }
+        if (description != null && description.length() > 1024) {
+            throw new BadRequestException("description must have at most 1024 characters");
+        }
 
         Organizer organizer = organizerDao.findOne(request.organizerId());
         if (organizer == null) {
@@ -166,6 +173,7 @@ public class ConcertServiceImpl implements ConcertService {
         Concert concert = new Concert();
         concert.setTitle(title);
         concert.setArtist(artist);
+        concert.setDescription(description);
         concert.setDate(request.date());
         concert.setOrganizer(organizer);
         concert.setPlace(place);

@@ -3,10 +3,12 @@ package jpa.dto.user;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.time.Instant;
+import java.util.UUID;
 
 /**
  * Payload returned for the authenticated user profile endpoint.
  *
+ * @param id user identifier
  * @param email user email
  * @param firstName user first name
  * @param lastName user last name
@@ -15,6 +17,8 @@ import java.time.Instant;
  */
 @Schema(name = "CurrentUserResponse")
 public record ResponseCurrentUserDto(
+        @Schema(description = "User identifier", type = "string", format = "uuid")
+        UUID id,
         @Schema(description = "User email address", format = "email", example = "alice@example.com")
         String email,
         @Schema(description = "User first name", example = "Alice")

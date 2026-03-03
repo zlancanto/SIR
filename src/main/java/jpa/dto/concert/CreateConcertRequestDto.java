@@ -11,6 +11,7 @@ import java.util.UUID;
  *
  * @param title concert title as displayed publicly
  * @param artist optional artist name
+ * @param description optional concert description
  * @param date scheduled date and time of the concert
  * @param organizerId identifier of the organizer creating the concert
  * @param placeId identifier of the venue where the concert will be held
@@ -30,6 +31,11 @@ public record CreateConcertRequestDto(
                 example = "Daft Punk Tribute"
         )
         String artist,
+        @Schema(
+                description = "Optional concert description",
+                example = "Opening act at 20:00, main show at 21:00"
+        )
+        String description,
         @Schema(
                 description = "Scheduled concert date and time in UTC",
                 type = "string",
