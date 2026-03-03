@@ -197,8 +197,35 @@ public class ConcertServiceImpl implements ConcertService {
             UUID concertId,
             String authenticatedAdminEmail
     ) {
+        return transitionPendingConcert(concertId, authenticatedAdminEmail, ConcertStatus.PUBLISHED);
+    }
+
+    /**
+     * Rejects a pending concert.
+     *
+     * @param concertId identifier of the target concert
+     * @param authenticatedAdminEmail authenticated admin email extracted from JWT context
+     * @return updated concert mapped to response DTO
+     */
+    @Override
+    public ResponseConcertDetailsDto rejectConcert(
+            UUID concertId,
+            String authenticatedAdminEmail
+    ) {
+        return transitionPendingConcert(concertId, authenticatedAdminEmail, ConcertStatus.REJECTED);
+    }
+
+    private ResponseConcertDetailsDto transitionPendingConcert(
+            UUID concertId,
+            String authenticatedAdminEmail,
+            ConcertStatus targetStatus
+    ) {
         if (concertId == null) {
             throw new BadRequestException("concertId is required");
+        }
+
+        if (targetStatus == null) {
+            throw new BadRequestException("targetStatus is required");
         }
 
         String email = normalizeRequired("authenticatedAdminEmail", authenticatedAdminEmail)
@@ -228,7 +255,7 @@ public class ConcertServiceImpl implements ConcertService {
         }
 
         concert.setAdmin(admin);
-        concert.setStatus(ConcertStatus.PUBLISHED);
+        concert.setStatus(targetStatus);
 
         Concert updated = concertDao.update(concert);
         return toResponse(updated);

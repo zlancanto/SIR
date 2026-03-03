@@ -35,6 +35,15 @@ public interface ConcertService {
     ResponseConcertDetailsDto validateConcert(UUID concertId, String authenticatedAdminEmail);
 
     /**
+     * Rejects a pending concert.
+     *
+     * @param concertId identifier of the concert to reject
+     * @param authenticatedAdminEmail authenticated admin email extracted from JWT context
+     * @return updated concert after status transition to {@code REJECTED}
+     */
+    ResponseConcertDetailsDto rejectConcert(UUID concertId, String authenticatedAdminEmail);
+
+    /**
      * Lists concerts visible to public users.
      *
      * @return concerts currently published

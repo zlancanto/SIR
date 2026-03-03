@@ -170,6 +170,67 @@ public class ConcertController {
     }
 
     /**
+     * Rejects a pending concert.
+     *
+     * @param concertId concert identifier from path
+     * @return HTTP 200 with updated concert details
+     */
+    @POST
+    @Path("/{concertId}/reject")
+    @RolesAllowed("ROLE_ADMIN")
+    @Operation(
+            summary = "Reject a pending concert",
+            description = "Rejects a PENDING_VALIDATION concert using the authenticated admin."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Concert rejected",
+                    content = @Content(schema = @Schema(implementation = ResponseConcertDetailsDto.class))
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Invalid request parameter",
+                    content = @Content(schema = @Schema(implementation = ResponseExceptionDto.class))
+            ),
+            @ApiResponse(
+                    responseCode = "403",
+                    description = "User does not have admin privileges",
+                    content = @Content(schema = @Schema(implementation = ResponseExceptionDto.class))
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Concert or admin not found",
+                    content = @Content(schema = @Schema(implementation = ResponseExceptionDto.class))
+            ),
+            @ApiResponse(
+                    responseCode = "409",
+                    description = "Concert is not pending validation",
+                    content = @Content(schema = @Schema(implementation = ResponseExceptionDto.class))
+            ),
+            @ApiResponse(
+                    responseCode = "401",
+                    description = "Missing or invalid bearer access token",
+                    content = @Content(schema = @Schema(implementation = ResponseExceptionDto.class))
+            )
+    })
+    public Response reject(
+            @Parameter(
+                    in = ParameterIn.PATH,
+                    required = true,
+                    description = "Concert identifier",
+                    schema = @Schema(type = "string", format = "uuid")
+            )
+            @PathParam("concertId") UUID concertId,
+            @Context SecurityContext securityContext
+    ) {
+        String msgException = "Authenticated admin is required";
+        String authenticatedAdminEmail = resolveAuthenticatedEmail(securityContext, msgException);
+        ResponseConcertDetailsDto rejected = concertService.rejectConcert(concertId, authenticatedAdminEmail);
+        return Response.ok(rejected).build();
+    }
+
+    /**
      * Lists concerts available to public users.
      *
      * @return HTTP 200 with published concerts

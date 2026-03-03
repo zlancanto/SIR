@@ -3,10 +3,12 @@ package jpa.dto.concert;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.time.Instant;
+import java.util.UUID;
 
 /**
  * Flat projection returned by admin moderation listing endpoints.
  *
+ * @param concertId concert identifier
  * @param concertTitle concert title
  * @param concertArtist optional concert artist
  * @param concertCreatedAt concert creation timestamp
@@ -21,6 +23,8 @@ import java.time.Instant;
  */
 @Schema(name = "AdminConcertModeration")
 public record ResponseAdminConcertModerationDto(
+        @Schema(description = "Concert identifier", example = "3fa85f64-5717-4562-b3fc-2c963f66afa6")
+        UUID concertId,
         @Schema(description = "Concert title", example = "Nuit Electro Rennes")
         String concertTitle,
         @Schema(description = "Concert artist", example = "Daft Punk Tribute", nullable = true)

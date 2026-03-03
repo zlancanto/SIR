@@ -210,9 +210,10 @@ Service:
 
 1. `POST /concerts/create` (prive: `ROLE_ORGANIZER`)
 2. `POST /concerts/{concertId}/validate` (prive: `ROLE_ADMIN`)
-3. `GET /concerts/public` (public)
-4. `GET /concerts/public/places` (public, projection avec details de salle)
-5. `GET /concerts/pending` (prive: `ROLE_ADMIN`)
+3. `POST /concerts/{concertId}/reject` (prive: `ROLE_ADMIN`)
+4. `GET /concerts/public` (public)
+5. `GET /concerts/public/places` (public, projection avec details de salle)
+6. `GET /concerts/pending` (prive: `ROLE_ADMIN`)
 
 Controller:
 `src/main/java/jpa/controllers/ConcertController.java`
@@ -246,6 +247,7 @@ Pour tous les endpoints prives, il faut fournir:
 | POST    | `/users/register/admin`          | Prive (`@RolesAllowed`) | Role `ROLE_ADMIN` + `X-Admin-Registration-Key`            | `src/main/java/jpa/controllers/UserController.java`    |
 | POST    | `/concerts/create`               | Prive (`@RolesAllowed`) | Role `ROLE_ORGANIZER`                                     | `src/main/java/jpa/controllers/ConcertController.java` |
 | POST    | `/concerts/{concertId}/validate` | Prive (`@RolesAllowed`) | Role `ROLE_ADMIN`                                         | `src/main/java/jpa/controllers/ConcertController.java` |
+| POST    | `/concerts/{concertId}/reject`   | Prive (`@RolesAllowed`) | Role `ROLE_ADMIN`                                         | `src/main/java/jpa/controllers/ConcertController.java` |
 | GET     | `/concerts/public`               | Public (`@PermitAll`)   | Aucune                                                    | `src/main/java/jpa/controllers/ConcertController.java` |
 | GET     | `/concerts/public/places`        | Public (`@PermitAll`)   | Concerts `PUBLISHED` + infos place + `placeAvailables`   | `src/main/java/jpa/controllers/ConcertController.java` |
 | GET     | `/concerts/pending`              | Prive (`@RolesAllowed`) | Role `ROLE_ADMIN`                                         | `src/main/java/jpa/controllers/ConcertController.java` |
@@ -401,6 +403,14 @@ curl -X POST http://localhost:8081/concerts/create \
 
 ```bash
 curl -X POST http://localhost:8081/concerts/<concert_uuid>/validate \
+  -H "Authorization: Bearer <access_token_admin>" \
+  -H "Content-Type: application/json"
+```
+
+### Rejet concert (admin)
+
+```bash
+curl -X POST http://localhost:8081/concerts/<concert_uuid>/reject \
   -H "Authorization: Bearer <access_token_admin>" \
   -H "Content-Type: application/json"
 ```

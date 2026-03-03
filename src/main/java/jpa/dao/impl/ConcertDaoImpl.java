@@ -150,6 +150,7 @@ public class ConcertDaoImpl extends ConcertDao {
         EntityManager em = getEntityManager();
         String jpql = """
                 SELECT
+                    c.id,
                     c.title,
                     c.artist,
                     c.createdAt,
@@ -339,19 +340,21 @@ public class ConcertDaoImpl extends ConcertDao {
     }
 
     private ResponseAdminConcertModerationDto toAdminConcertModerationProjection(Object[] row) {
-        String concertTitle = (String) row[0];
-        String concertArtist = (String) row[1];
-        Instant concertCreatedAt = (Instant) row[2];
-        Instant concertDate = (Instant) row[3];
-        String placeAddress = (String) row[4];
-        Integer placeZipCode = row[5] == null ? null : ((Number) row[5]).intValue();
-        String placeCity = (String) row[6];
-        Integer placeCapacity = row[7] == null ? null : ((Number) row[7]).intValue();
-        Integer ticketQuantity = row[8] == null ? 0 : ((Number) row[8]).intValue();
-        String organizerFistName = (String) row[9];
-        String organizerLastName = (String) row[10];
+        UUID concertId = (UUID) row[0];
+        String concertTitle = (String) row[1];
+        String concertArtist = (String) row[2];
+        Instant concertCreatedAt = (Instant) row[3];
+        Instant concertDate = (Instant) row[4];
+        String placeAddress = (String) row[5];
+        Integer placeZipCode = row[6] == null ? null : ((Number) row[6]).intValue();
+        String placeCity = (String) row[7];
+        Integer placeCapacity = row[8] == null ? null : ((Number) row[8]).intValue();
+        Integer ticketQuantity = row[9] == null ? 0 : ((Number) row[9]).intValue();
+        String organizerFistName = (String) row[10];
+        String organizerLastName = (String) row[11];
 
         return new ResponseAdminConcertModerationDto(
+                concertId,
                 concertTitle,
                 concertArtist,
                 concertCreatedAt,
