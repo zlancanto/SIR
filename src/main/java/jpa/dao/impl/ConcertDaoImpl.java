@@ -79,7 +79,7 @@ public class ConcertDaoImpl extends ConcertDao {
                     p.zipCode,
                     p.city,
                     p.capacity,
-                    COALESCE(SUM(CASE WHEN t.sold = true THEN 1 ELSE 0 END), 0),
+                    COALESCE(SUM(CASE WHEN t.sold = false THEN 1 ELSE 0 END), 0),
                     MIN(t.price)
                 FROM Concert c
                 LEFT JOIN c.place p
@@ -263,12 +263,10 @@ public class ConcertDaoImpl extends ConcertDao {
         Integer placeZipCode = row[6] == null ? null : ((Number) row[6]).intValue();
         String placeCity = (String) row[7];
         Integer placeCapacity = row[8] == null ? null : ((Number) row[8]).intValue();
-        long soldCount = row[9] == null ? 0L : ((Number) row[9]).longValue();
+        int unsoldCount = row[9] == null ? 0 : ((Number) row[9]).intValue();
         BigDecimal ticketUnitPrice = (BigDecimal) row[10];
 
-        Integer placeAvailables = placeCapacity == null
-                ? null
-                : Math.max(0, placeCapacity - Math.toIntExact(soldCount));
+        Integer placeAvailables = unsoldCount;
 
         return new ResponseConcertPlaceDto(
                 concertId,
