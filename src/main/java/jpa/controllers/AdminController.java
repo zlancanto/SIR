@@ -1,12 +1,16 @@
 package jpa.controllers;
 
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-import jpa.dto.admin.ResponseAdminDto;
+import jpa.config.Instance;
+import jpa.dto.admin.ResponseAdminSummaryDto;
 import jpa.services.interfaces.AdminService;
+
+import java.util.List;
 
 /**
  * REST controller exposing AdminController endpoints.
@@ -26,12 +30,22 @@ public class AdminController {
     }
 
     /**
-     * Executes ping operation.
+     * Creates a new instance of AdminController with default wiring.
+     */
+    public AdminController() {
+        this.adminService = Instance.ADMIN_SERVICE;
+    }
+
+    /**
+     * Lists all admins.
      *
      * @return operation result
      */
     @GET
-    public Response ping() {
-        return Response.ok(new ResponseAdminDto("admin endpoint ready")).build();
+    @Path("/all")
+    @RolesAllowed("ROLE_ADMIN")
+    public Response getAllAdmins() {
+        List<ResponseAdminSummaryDto> admins = adminService.getAllAdmins();
+        return Response.ok(admins).build();
     }
 }
