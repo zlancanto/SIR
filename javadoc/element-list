@@ -8,12 +8,17 @@ jpa.dto.admin
 jpa.dto.auth
 jpa.dto.concert
 jpa.dto.exceptions
+jpa.dto.place
+jpa.dto.security
+jpa.dto.ticket
 jpa.dto.user
 jpa.entities
 jpa.enums
 jpa.exceptionhandlers
 jpa.exceptions
 jpa.security
+jpa.security.impl
+jpa.security.interfaces
 jpa.services.impl
 jpa.services.interfaces
 jpa.utils
