@@ -22,7 +22,8 @@ public class NotAllowedExceptionHandler extends BaseExceptionMapper
     public Response toResponse(NotAllowedException ex) {
         return buildResponse(
                 Response.Status.METHOD_NOT_ALLOWED,
-                safeMessage(ex, "Method not allowed")
+                safeMessage(ex, "Method not allowed"),
+                ex
         );
     }
 }

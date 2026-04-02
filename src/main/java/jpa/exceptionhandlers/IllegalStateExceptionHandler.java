@@ -21,7 +21,8 @@ public class IllegalStateExceptionHandler extends BaseExceptionMapper
     public Response toResponse(IllegalStateException ex) {
         return buildResponse(
                 Response.Status.INTERNAL_SERVER_ERROR,
-                "Internal server error"
+                "Internal server error",
+                ex
         );
     }
 }

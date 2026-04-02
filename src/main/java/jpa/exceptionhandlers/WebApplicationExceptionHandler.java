@@ -28,6 +28,6 @@ public class WebApplicationExceptionHandler extends BaseExceptionMapper
                 ? "Internal server error"
                 : safeMessage(exception, status.getReasonPhrase());
 
-        return buildResponse(status, message);
+        return buildResponse(status, message, exception);
     }
 }

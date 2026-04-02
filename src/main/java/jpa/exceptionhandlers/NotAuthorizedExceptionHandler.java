@@ -22,7 +22,8 @@ public class NotAuthorizedExceptionHandler extends BaseExceptionMapper
     public Response toResponse(NotAuthorizedException ex) {
         return buildResponse(
                 Response.Status.UNAUTHORIZED,
-                safeMessage(ex, "Unauthorized")
+                safeMessage(ex, "Unauthorized"),
+                ex
         );
     }
 }

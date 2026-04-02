@@ -23,7 +23,8 @@ public class BadRequestExceptionHandler
     public Response toResponse(BadRequestException ex) {
         return buildResponse(
                 Response.Status.BAD_REQUEST,
-                safeMessage(ex, "Bad Request")
+                safeMessage(ex, "Bad Request"),
+                ex
         );
     }
 }

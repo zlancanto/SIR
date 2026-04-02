@@ -22,7 +22,8 @@ public class ForbiddenExceptionHandler extends BaseExceptionMapper
     public Response toResponse(ForbiddenException ex) {
         return buildResponse(
                 Response.Status.FORBIDDEN,
-                safeMessage(ex, "Forbidden")
+                safeMessage(ex, "Forbidden"),
+                ex
         );
     }
 }

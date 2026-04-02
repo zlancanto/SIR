@@ -25,7 +25,8 @@ public class InvalidFormatExceptionHandler extends BaseExceptionMapper
     public Response toResponse(InvalidFormatException ex) {
         return buildResponse(
                 Response.Status.BAD_REQUEST,
-                buildInvalidFormatMessage(ex)
+                buildInvalidFormatMessage(ex),
+                ex
         );
     }
 

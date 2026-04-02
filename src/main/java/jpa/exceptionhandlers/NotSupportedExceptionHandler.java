@@ -22,7 +22,8 @@ public class NotSupportedExceptionHandler extends BaseExceptionMapper
     public Response toResponse(NotSupportedException ex) {
         return buildResponse(
                 Response.Status.UNSUPPORTED_MEDIA_TYPE,
-                safeMessage(ex, "Unsupported media type")
+                safeMessage(ex, "Unsupported media type"),
+                ex
         );
     }
 }

@@ -21,7 +21,8 @@ public class IllegalArgumentExceptionHandler extends BaseExceptionMapper
     public Response toResponse(IllegalArgumentException exception) {
         return buildResponse(
                 Response.Status.BAD_REQUEST,
-                safeMessage(exception, "Invalid request")
+                safeMessage(exception, "Invalid request"),
+                exception
         );
     }
 }

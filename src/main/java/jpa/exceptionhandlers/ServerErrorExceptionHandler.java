@@ -28,6 +28,6 @@ public class ServerErrorExceptionHandler extends BaseExceptionMapper
                 ? "Internal server error"
                 : safeMessage(ex, status.getReasonPhrase());
 
-        return buildResponse(status, message);
+        return buildResponse(status, message, ex);
     }
 }

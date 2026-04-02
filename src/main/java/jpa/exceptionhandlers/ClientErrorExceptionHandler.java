@@ -26,7 +26,8 @@ public class ClientErrorExceptionHandler extends BaseExceptionMapper
 
         return buildResponse(
                 status,
-                safeMessage(ex, status.getReasonPhrase())
+                safeMessage(ex, status.getReasonPhrase()),
+                ex
         );
     }
 }

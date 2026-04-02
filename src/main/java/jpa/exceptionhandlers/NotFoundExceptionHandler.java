@@ -22,7 +22,8 @@ public class NotFoundExceptionHandler extends BaseExceptionMapper
     public Response toResponse(NotFoundException ex) {
         return buildResponse(
                 Response.Status.NOT_FOUND,
-                safeMessage(ex, "Resource not found")
+                safeMessage(ex, "Resource not found"),
+                ex
         );
     }
 }
