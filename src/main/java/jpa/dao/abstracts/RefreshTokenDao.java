@@ -24,4 +24,12 @@ public abstract class RefreshTokenDao extends AbstractJpaDao<UUID, RefreshToken>
      * @return optional active token
      */
     public abstract Optional<RefreshToken> findValidByHash(String tokenHash, Instant now);
+
+    /**
+     * Finds the most recently created refresh token for a user.
+     *
+     * @param userId owner identifier
+     * @return optional latest token row for the user
+     */
+    public abstract Optional<RefreshToken> findLatestByUserId(UUID userId);
 }

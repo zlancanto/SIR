@@ -141,7 +141,22 @@ public class AuthServiceImpl implements AuthService {
         refreshToken.setUser(user);
         refreshToken.setTokenHash(hashedRefreshToken);
         refreshToken.setExpiresAt(refreshExpiresAt);
-        refreshTokenDao.save(refreshToken);
+        try {
+            refreshTokenDao.save(refreshToken);
+        } catch (RuntimeException ex) {
+            if (!isLikelyLegacyUserIdUniqueConstraint(ex)) {
+                throw ex;
+            }
+
+            // Backward compatibility: some old schemas keep a UNIQUE(user_id) on refresh_tokens.
+            RefreshToken existing = refreshTokenDao.findLatestByUserId(user.getId())
+                    .orElseThrow(() -> ex);
+            existing.setUser(user);
+            existing.setTokenHash(hashedRefreshToken);
+            existing.setExpiresAt(refreshExpiresAt);
+            existing.setRevokedAt(null);
+            refreshTokenDao.update(existing);
+        }
 
         return new TokenPairResponseDto(
                 accessToken,
@@ -150,5 +165,26 @@ public class AuthServiceImpl implements AuthService {
                 accessExpiresAt,
                 refreshExpiresAt
         );
+    }
+
+    private boolean isLikelyLegacyUserIdUniqueConstraint(RuntimeException ex) {
+        Throwable current = ex;
+        while (current != null) {
+            String message = current.getMessage();
+            if (message != null) {
+                String normalized = message.toLowerCase(Locale.ROOT);
+                boolean mentionsUniqueness = normalized.contains("unique")
+                        || normalized.contains("duplicate")
+                        || normalized.contains("constraint");
+                boolean mentionsRefreshUserId = normalized.contains("refresh_tokens")
+                        && normalized.contains("user_id");
+
+                if (mentionsUniqueness && mentionsRefreshUserId) {
+                    return true;
+                }
+            }
+            current = current.getCause();
+        }
+        return false;
     }
 }
