@@ -5,6 +5,7 @@ import jpa.entities.Customer;
 import jpa.entities.Organizer;
 import jpa.entities.User;
 import jpa.enums.Roles;
+import org.hibernate.Hibernate;
 
 /**
  * Utility resolver converting persisted user subtype into the canonical role enum.
@@ -19,15 +20,24 @@ public final class UserRoleResolver {
      * @return matching role enum
      */
     public static Roles resolve(User user) {
-        if (user instanceof Admin) {
+        if (user == null) {
+            throw new IllegalArgumentException("User is required");
+        }
+
+        Object resolved = Hibernate.unproxy(user);
+        if (!(resolved instanceof User resolvedUser)) {
+            throw new IllegalStateException("Unsupported user proxy type: " + resolved.getClass().getName());
+        }
+
+        if (resolvedUser instanceof Admin) {
             return Roles.ROLE_ADMIN;
         }
-        if (user instanceof Organizer) {
+        if (resolvedUser instanceof Organizer) {
             return Roles.ROLE_ORGANIZER;
         }
-        if (user instanceof Customer) {
+        if (resolvedUser instanceof Customer) {
             return Roles.ROLE_CUSTOMER;
         }
-        throw new IllegalStateException("Unsupported user type: " + user.getClass().getSimpleName());
+        throw new IllegalStateException("Unsupported user type: " + resolvedUser.getClass().getName());
     }
 }

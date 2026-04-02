@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.info.Info;
 import jakarta.ws.rs.ApplicationPath;
 import jakarta.ws.rs.core.Application;
 import jpa.config.CorsFilter;
+import jpa.config.EntityManagerPerRequestFilter;
 import jpa.config.JacksonObjectMapperProvider;
 import jpa.controllers.AuthController;
 import jpa.controllers.AdminController;
@@ -53,6 +54,7 @@ public class TestApplication extends Application {
         clazzes.add(OpenApiAliasController.class);
         clazzes.add(SwaggerUiController.class);
         clazzes.add(CorsFilter.class);
+        clazzes.add(EntityManagerPerRequestFilter.class);
         clazzes.add(JwtAuthorizationFilter.class);
         clazzes.add(RoleBasedSecurityFeature.class);
 
